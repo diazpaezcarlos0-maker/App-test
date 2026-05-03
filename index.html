@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oposición Ayto. Madrid - Test Interactivo</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a365d">
+</head>
+<body>
+
+    <!-- PANTALLA PRINCIPAL: DASHBOARD -->
+    <div id="dashboard" class="screen active">
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>📚 Oposición Ayto. Madrid</h1>
+                <p class="subtitle">Administrativa Promoción Interna C1</p>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </header>
+
+        <!-- ESTADÍSTICAS GENERALES -->
+        <section class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalPreguntas">587</div>
+                    <div class="stat-label">Preguntas totales</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="preguntasCompletadas">0</div>
+                    <div class="stat-label">Completadas</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="contadorGuardadas">0</div>
+                    <div class="stat-label">Guardadas</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">❌</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="contadorFalladas">0</div>
+                    <div class="stat-label">Falladas</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="porcentajeAcierto">0%</div>
+                    <div class="stat-label">Acierto medio</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MENÚ PRINCIPAL -->
+        <section class="menu-principal">
+            <button class="menu-card" onclick="mostrarModoEstudio()">
+                <div class="menu-icon">📖</div>
+                <h3>Modo Estudio</h3>
+                <p>Elige temas y número de preguntas</p>
+            </button>
+
+            <button class="menu-card" onclick="mostrarModoSimulacro()">
+                <div class="menu-icon">🎓</div>
+                <h3>Modo Simulacro</h3>
+                <p>Examen oficial sin ver respuestas</p>
+            </button>
+
+            <button class="menu-card" onclick="mostrarPreguntasGuardadas()">
+                <div class="menu-icon">⭐</div>
+                <h3>Preguntas Guardadas</h3>
+                <p>Repasa tus favoritas</p>
+            </button>
+
+            <button class="menu-card" onclick="mostrarPreguntasFalladas()">
+                <div class="menu-icon">❌</div>
+                <h3>Preguntas Falladas</h3>
+                <p>Repasa tus errores</p>
+            </button>
+
+            <button class="menu-card" onclick="mostrarEstadisticasDetalladas()">
+                <div class="menu-icon">📈</div>
+                <h3>Estadísticas</h3>
+                <p>Progreso por tema</p>
+            </button>
+        </section>
+    </div>
+
+    <!-- PANTALLA: MODO ESTUDIO -->
+    <div id="modoEstudio" class="screen">
+        <header class="screen-header">
+            <button class="btn-back" onclick="volverDashboard()">← Volver</button>
+            <h2>📖 Modo Estudio</h2>
+        </header>
+
+        <div class="config-container">
+            <div class="config-section">
+                <h3>Selecciona los temas</h3>
+                <div class="temas-grid" id="temasSeleccionEstudio"></div>
+            </div>
+
+            <div class="config-section">
+                <h3>Número de preguntas</h3>
+                
+                <label class="checkbox-label">
+                    <input type="checkbox" id="soloPreguntasNuevas" checked>
+                    <span>Solo preguntas nuevas (no vistas)</span>
+                </label>
+                
+                <div class="cantidad-selector">
+                    <button onclick="ajustarCantidad(-5)">-5</button>
+                    <button onclick="ajustarCantidad(-1)">-1</button>
+                    <input type="number" id="cantidadPreguntas" value="10" min="1" max="100">
+                    <button onclick="ajustarCantidad(1)">+1</button>
+                    <button onclick="ajustarCantidad(5)">+5</button>
+                </div>
+                <button class="btn-primary btn-large" onclick="iniciarModoEstudio()">
+                    Comenzar Estudio
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA: MODO SIMULACRO -->
+    <div id="modoSimulacro" class="screen">
+        <header class="screen-header">
+            <button class="btn-back" onclick="volverDashboard()">← Volver</button>
+            <h2>🎓 Modo Simulacro</h2>
+        </header>
+
+        <div class="simulacro-info">
+            <div class="info-card">
+                <h3>Simulacro de Examen Oficial</h3>
+                <ul>
+                    <li>✓ Proporción de preguntas por tema</li>
+                    <li>✓ No verás las respuestas hasta el final</li>
+                    <li>✓ Cronómetro de tiempo (opcional)</li>
+                    <li>✓ Calificación al finalizar</li>
+                </ul>
+            </div>
+
+            <div class="config-section">
+                <h3>Configuración del simulacro</h3>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="conTiempo">
+                    <span>Activar cronómetro (1 minuto por pregunta)</span>
+                </label>
+                
+                <div class="cantidad-selector">
+                    <label>Número de preguntas:</label>
+                    <input type="number" id="cantidadSimulacro" value="50" min="10" max="100">
+                </div>
+
+                <button class="btn-primary btn-large" onclick="iniciarSimulacro()">
+                    Comenzar Simulacro
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA: PREGUNTAS GUARDADAS -->
+    <div id="preguntasGuardadas" class="screen">
+        <header class="screen-header">
+            <button class="btn-back" onclick="volverDashboard()">← Volver</button>
+            <h2>⭐ Preguntas Guardadas</h2>
+        </header>
+
+        <div class="guardadas-container">
+            <div id="listaGuardadas" style="display: none;"></div>
+            <div id="mensajeVacio" class="mensaje-vacio" style="display: block;">
+                <p>No tienes preguntas guardadas aún</p>
+                <small>Usa el botón ⭐ durante los test para guardar preguntas</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA: PREGUNTAS FALLADAS -->
+    <div id="preguntasFalladas" class="screen">
+        <header class="screen-header">
+            <button class="btn-back" onclick="volverDashboard()">← Volver</button>
+            <h2>❌ Preguntas Falladas</h2>
+        </header>
+
+        <div class="guardadas-container">
+            <div id="listaFalladas" style="display: none;"></div>
+            <div id="mensajeVacioFalladas" class="mensaje-vacio" style="display: block;">
+                <p>No tienes preguntas falladas registradas</p>
+                <small>Las preguntas incorrectas se guardarán automáticamente aquí</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA: ESTADÍSTICAS DETALLADAS -->
+    <div id="estadisticasDetalladas" class="screen">
+        <header class="screen-header">
+            <button class="btn-back" onclick="volverDashboard()">← Volver</button>
+            <h2>📈 Estadísticas por Tema</h2>
+        </header>
+
+        <div class="stats-detalladas" id="statsDetalladas"></div>
+    </div>
+
+    <!-- PANTALLA: TEST EN CURSO -->
+    <div id="pantallaTest" class="screen">
+        <div class="test-header">
+            <button class="btn-back" onclick="abandonarTest()">← Abandonar</button>
+            <div class="test-info">
+                <span id="infoModo">Modo Estudio</span>
+                <span id="cronometro" class="cronometro"></span>
+            </div>
+        </div>
+
+        <div class="barra-progreso-container">
+            <div class="barra-progreso" id="barraProgreso"></div>
+            <div class="progreso-texto" id="progresoTexto">1 / 10</div>
+        </div>
+
+        <div class="pregunta-container">
+            <div class="pregunta-numero" id="numeroPregunta"></div>
+            <div class="pregunta-texto" id="textoPregunta"></div>
+        </div>
+
+        <div class="opciones-container" id="opcionesContainer"></div>
+
+        <div class="explicacion-container oculto" id="explicacionContainer">
+            <div class="explicacion-content" id="explicacionTexto"></div>
+        </div>
+
+        <div class="test-actions">
+            <button class="btn-nav" id="btnAnterior" onclick="preguntaAnterior()">
+                ← Anterior
+            </button>
+            <button class="btn-guardar" id="btnGuardar" onclick="toggleGuardarPregunta()">
+                <span id="iconoGuardar">☆</span> Guardar
+            </button>
+            <button class="btn-nav" id="btnSiguiente" onclick="siguientePregunta()">
+                Siguiente →
+            </button>
+        </div>
+        
+        <div class="test-navegacion">
+            <div class="mini-mapa" id="miniMapa"></div>
+        </div>
+    </div>
+
+    <!-- PANTALLA: RESULTADOS -->
+    <div id="pantallaResultados" class="screen">
+        <header class="screen-header">
+            <button class="btn-back" onclick="volverDashboard()">← Dashboard</button>
+            <h2>📊 Resultados</h2>
+        </header>
+
+        <div class="resultados-container">
+            <div class="resultado-general">
+                <div class="puntuacion-grande" id="puntuacionFinal">0%</div>
+                <div class="resultado-detalles">
+                    <div class="detalle-item">
+                        <span class="detalle-label">Correctas:</span>
+                        <span class="detalle-valor correctas" id="totalCorrectas">0</span>
+                    </div>
+                    <div class="detalle-item">
+                        <span class="detalle-label">Incorrectas:</span>
+                        <span class="detalle-valor incorrectas" id="totalIncorrectas">0</span>
+                    </div>
+                    <div class="detalle-item">
+                        <span class="detalle-label">Sin responder:</span>
+                        <span class="detalle-valor" id="totalSinResponder">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="detalleRespuestas"></div>
+
+            <div class="acciones-resultado">
+                <button class="btn-secondary" onclick="volverDashboard()">Volver al inicio</button>
+                <button class="btn-primary" onclick="repasarFalladas()">Repasar falladas</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
