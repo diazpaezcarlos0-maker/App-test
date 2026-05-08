@@ -240,6 +240,23 @@
 
         <div class="stats-detalladas" id="statsDetalladas"></div>
     </div>
+    <!-- PANTALLA: RANKING -->
+    <div id="pantallaRanking" class="screen">
+        <header class="screen-header">
+            <button class="btn-back" onclick="volverDashboard()">← Volver</button>
+            <h2>🏆 Ranking</h2>
+            <button class="btn-editar-nombre" onclick="editarNombrePublico()">✏️ Mi nombre</button>
+        </header>
+
+        <div class="ranking-tabs">
+            <button class="tab-periodo activa" data-periodo="total" onclick="cambiarPeriodoRanking('total')">Total</button>
+            <button class="tab-periodo" data-periodo="mes" onclick="cambiarPeriodoRanking('mes')">Mes</button>
+            <button class="tab-periodo" data-periodo="semana" onclick="cambiarPeriodoRanking('semana')">Semana</button>
+            <button class="tab-periodo" data-periodo="hoy" onclick="cambiarPeriodoRanking('hoy')">Hoy</button>
+        </div>
+
+        <div id="contenidoRanking"></div>
+    </div>
 
     <!-- PANTALLA: TEST EN CURSO -->
     <div id="pantallaTest" class="screen">
