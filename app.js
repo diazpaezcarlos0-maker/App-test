@@ -458,6 +458,8 @@ function mostrarPregunta() {
     if (respuestaActual && estadoApp.modo === 'estudio') {
         document.getElementById('explicacionTexto').innerHTML = pregunta.explicacion;
         document.getElementById('explicacionContainer').classList.remove('oculto');
+        // También mostrar la stat global si ya estaba respondida
+        mostrarStatGlobalDePregunta(pregunta);
     } else {
         document.getElementById('explicacionContainer').classList.add('oculto');
     }
@@ -551,7 +553,41 @@ function mostrarResultadoPregunta() {
     document.getElementById('explicacionTexto').innerHTML = pregunta.explicacion;
     document.getElementById('explicacionContainer').classList.remove('oculto');
     
+    // Mostrar % global de acierto (asíncrono, aparece cuando llega)
+    mostrarStatGlobalDePregunta(pregunta);
+    
     renderizarMiniMapa();
+}
+
+async function mostrarStatGlobalDePregunta(pregunta) {
+    if (!pregunta.dbId || typeof obtenerStatGlobalDePregunta !== 'function') return;
+    
+    const cont = document.getElementById('explicacionContainer');
+    if (!cont) return;
+    
+    // Quitar stat anterior si la había
+    const anterior = cont.querySelector('.stat-global-pregunta');
+    if (anterior) anterior.remove();
+    
+    const stat = await obtenerStatGlobalDePregunta(pregunta.dbId);
+    if (!stat) return; // sin datos suficientes
+    
+    const div = document.createElement('div');
+    div.className = 'stat-global-pregunta';
+    
+    let texto;
+    if (stat.porcentaje >= 80) {
+        texto = `📊 El ${stat.porcentaje}% de opositores aciertan esta pregunta`;
+    } else if (stat.porcentaje >= 50) {
+        texto = `📊 El ${stat.porcentaje}% de opositores aciertan esta`;
+    } else if (stat.porcentaje >= 30) {
+        texto = `🎯 Pregunta difícil: solo el ${stat.porcentaje}% acierta`;
+    } else {
+        texto = `🔥 Pregunta muy difícil: solo el ${stat.porcentaje}% acierta`;
+    }
+    
+    div.innerHTML = `<small>${texto} (${stat.total} respuestas)</small>`;
+    cont.appendChild(div);
 }
 
 function actualizarBotonesNavegacion() {
@@ -998,7 +1034,7 @@ function limpiarFalladas() {
 // ============================================
 // ESTADÍSTICAS
 // ============================================
-function renderizarEstadisticasDetalladas() {
+async function renderizarEstadisticasDetalladas() {
     const container = document.getElementById('statsDetalladas');
     container.innerHTML = '';
     
@@ -1012,6 +1048,16 @@ function renderizarEstadisticasDetalladas() {
     `;
     container.appendChild(headerDiv);
     
+    // Cargar medias globales por tema (una sola query)
+    let statsGlobalesPorTema = {};
+    try {
+        if (typeof obtenerStatsGlobalesPorTema === 'function') {
+            statsGlobalesPorTema = await obtenerStatsGlobalesPorTema();
+        }
+    } catch (e) {
+        console.warn('No se pudo cargar comparativa global:', e);
+    }
+    
     temas.forEach(tema => {
         const stats = estadoApp.estadisticas[tema.id] || { respondidas: 0, correctas: 0 };
         const preguntasVistasDelTema = estadoApp.preguntasVistas.filter(id => 
@@ -1023,6 +1069,24 @@ function renderizarEstadisticasDetalladas() {
             : 0;
         
         const icono = tema.icono || '📚';
+        const stG = statsGlobalesPorTema[tema.id];
+        
+        // HTML de comparativa global
+        let htmlComparativa = '';
+        if (stG && stG.total >= 5) {
+            const diff = porcentaje - stG.porcentaje;
+            let etiquetaDiff = '';
+            if (stats.respondidas > 0) {
+                if (diff > 5) etiquetaDiff = `<span class="diff-mejor">+${diff}% sobre la media</span>`;
+                else if (diff < -5) etiquetaDiff = `<span class="diff-peor">${diff}% bajo la media</span>`;
+                else etiquetaDiff = `<span class="diff-neutro">en la media</span>`;
+            }
+            htmlComparativa = `
+                <div class="tema-stat-comparativa">
+                    Media global: ${stG.porcentaje}% ${etiquetaDiff}
+                </div>
+            `;
+        }
         
         const div = document.createElement('div');
         div.className = 'tema-stat-card';
@@ -1039,6 +1103,7 @@ function renderizarEstadisticasDetalladas() {
                 <span>Respondidas: ${stats.respondidas}</span>
                 <span>Correctas: ${stats.correctas}</span>
             </div>
+            ${htmlComparativa}
             <button class="btn-secondary" style="margin-top: 0.75rem; width: 100%;" onclick="resetearProgresoDeTema(${tema.id})">
                 Resetear tema
             </button>
