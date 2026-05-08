@@ -1,3 +1,6 @@
+
+Copiar
+
 // ============================================
 // ESTADO GLOBAL
 // ============================================
@@ -15,54 +18,66 @@ let estadoApp = {
     preguntasVistas: cargarPreguntasVistas(),
     opcionesMezcladas: [] // Array para guardar el orden mezclado de opciones por pregunta
 };
-
+ 
 // ============================================
 // PERSISTENCIA LOCALSTORAGE
 // ============================================
 function guardarGuardadas() {
     localStorage.setItem('preguntasGuardadas', JSON.stringify(estadoApp.preguntasGuardadas));
 }
-
+ 
 function cargarGuardadas() {
     const guardadas = localStorage.getItem('preguntasGuardadas');
     return guardadas ? JSON.parse(guardadas) : [];
 }
-
+ 
 function guardarEstadisticas() {
     localStorage.setItem('estadisticas', JSON.stringify(estadoApp.estadisticas));
 }
-
+ 
 function cargarEstadisticas() {
     const stats = localStorage.getItem('estadisticas');
     return stats ? JSON.parse(stats) : {};
 }
-
+ 
 function guardarPreguntasVistas() {
     localStorage.setItem('preguntasVistas', JSON.stringify(estadoApp.preguntasVistas));
 }
-
+ 
 function cargarPreguntasVistas() {
     const vistas = localStorage.getItem('preguntasVistas');
     return vistas ? JSON.parse(vistas) : [];
 }
-
+ 
 function guardarFalladas() {
     localStorage.setItem('preguntasFalladas', JSON.stringify(estadoApp.preguntasFalladas));
 }
-
+ 
 function cargarFalladas() {
     const falladas = localStorage.getItem('preguntasFalladas');
     return falladas ? JSON.parse(falladas) : [];
 }
-
+ 
 // ============================================
 // INICIALIZACIÓN
 // ============================================
+// El DOMContentLoaded ahora solo carga el tema (claro/oscuro).
+// Las preguntas y el dashboard los carga auth.js cuando hay sesión activa.
 document.addEventListener('DOMContentLoaded', () => {
     cargarTemaGuardado();
-    cargarDashboard();
 });
-
+ 
+// Llamado desde auth.js después de hacer login
+async function inicializarAppPostLogin() {
+    try {
+        await cargarPreguntasDesdeSupabase();
+        cargarDashboard();
+    } catch (e) {
+        console.error('Error inicializando app:', e);
+        alert('Hubo un error cargando las preguntas. Recarga la página, por favor.');
+    }
+}
+ 
 // ============================================
 // MODO OSCURO
 // ============================================
@@ -71,7 +86,7 @@ function cargarTemaGuardado() {
     document.documentElement.setAttribute('data-theme', tema);
     actualizarIconoTema(tema);
 }
-
+ 
 function toggleTheme() {
     const temaActual = document.documentElement.getAttribute('data-theme');
     const nuevoTema = temaActual === 'dark' ? 'light' : 'dark';
@@ -80,18 +95,18 @@ function toggleTheme() {
     localStorage.setItem('theme', nuevoTema);
     actualizarIconoTema(nuevoTema);
 }
-
+ 
 function actualizarIconoTema(tema) {
     const icono = document.querySelector('.theme-icon');
     if (icono) {
         icono.textContent = tema === 'dark' ? '☀️' : '🌙';
     }
 }
-
+ 
 function cargarDashboard() {
     actualizarEstadisticasDashboard();
 }
-
+ 
 // ============================================
 // ESTADÍSTICAS DASHBOARD
 // ============================================
@@ -104,7 +119,7 @@ function actualizarEstadisticasDashboard() {
     document.getElementById('contadorFalladas').textContent = estadoApp.preguntasFalladas.length;
     document.getElementById('porcentajeAcierto').textContent = stats.porcentajeAcierto + '%';
 }
-
+ 
 function calcularEstadisticasGenerales() {
     const total = temas.reduce((sum, tema) => sum + tema.preguntas.length, 0);
     const completadas = Object.values(estadoApp.estadisticas).reduce((sum, tema) => sum + tema.respondidas, 0);
@@ -117,7 +132,7 @@ function calcularEstadisticasGenerales() {
         porcentajeAcierto: porcentaje
     };
 }
-
+ 
 // ============================================
 // NAVEGACIÓN ENTRE PANTALLAS
 // ============================================
@@ -140,39 +155,39 @@ function mostrarPantalla(idPantalla) {
         alert('Error: No se encuentra la pantalla ' + idPantalla);
     }
 }
-
+ 
 function volverDashboard() {
     detenerCronometro();
     mostrarPantalla('dashboard');
     actualizarEstadisticasDashboard();
 }
-
+ 
 function mostrarModoEstudio() {
     mostrarPantalla('modoEstudio');
     cargarTemasSeleccionables();
 }
-
+ 
 function mostrarModoSimulacro() {
     mostrarPantalla('modoSimulacro');
 }
-
+ 
 function mostrarPreguntasGuardadas() {
     console.log('Mostrando pantalla de preguntas guardadas');
     mostrarPantalla('preguntasGuardadas');
     renderizarPreguntasGuardadas();
 }
-
+ 
 function mostrarPreguntasFalladas() {
     console.log('Mostrando pantalla de preguntas falladas');
     mostrarPantalla('preguntasFalladas');
     renderizarPreguntasFalladas();
 }
-
+ 
 function mostrarEstadisticasDetalladas() {
     mostrarPantalla('estadisticasDetalladas');
     renderizarEstadisticasDetalladas();
 }
-
+ 
 // ============================================
 // MODO ESTUDIO - CONFIGURACIÓN
 // ============================================
@@ -217,14 +232,14 @@ function cargarTemasSeleccionables() {
         container.appendChild(div);
     });
 }
-
+ 
 function ajustarCantidad(delta) {
     const input = document.getElementById('cantidadPreguntas');
     let valor = parseInt(input.value) + delta;
     valor = Math.max(1, Math.min(100, valor));
     input.value = valor;
 }
-
+ 
 function iniciarModoEstudio() {
     const temasSeleccionados = Array.from(document.querySelectorAll('#temasSeleccionEstudio input:checked'))
         .map(cb => parseInt(cb.value));
@@ -234,9 +249,17 @@ function iniciarModoEstudio() {
         return;
     }
     
-    const cantidad = parseInt(document.getElementById('cantidadPreguntas').value);
+    const cantidadPedida = parseInt(document.getElementById('cantidadPreguntas').value);
     const soloPreguntasNuevas = document.getElementById('soloPreguntasNuevas').checked;
     
+    // Comprobar límite diario antes de empezar
+    comprobarLimiteAntesDeTest(cantidadPedida).then(cantidad => {
+        if (cantidad === 0) return; // muro mostrado o usuario canceló
+        _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas);
+    });
+}
+ 
+function _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas) {
     estadoApp.modo = 'estudio';
     estadoApp.temasActivos = temasSeleccionados;
     estadoApp.indicePregunta = 0;
@@ -267,7 +290,7 @@ function iniciarModoEstudio() {
     if (preguntasDisponibles.length === 0 && soloPreguntasNuevas) {
         if (confirm('¡Ya has visto todas las preguntas de estos temas! ¿Quieres resetear el progreso y empezar de nuevo?')) {
             resetearPreguntasVistas(temasSeleccionados);
-            iniciarModoEstudio();
+            _arrancarModoEstudio(temasSeleccionados, cantidad, false);
             return;
         } else {
             return;
@@ -279,14 +302,21 @@ function iniciarModoEstudio() {
     
     iniciarTest();
 }
-
+ 
 // ============================================
 // MODO SIMULACRO
 // ============================================
 function iniciarSimulacro() {
-    const cantidad = parseInt(document.getElementById('cantidadSimulacro').value);
+    const cantidadPedida = parseInt(document.getElementById('cantidadSimulacro').value);
     const conTiempo = document.getElementById('conTiempo').checked;
     
+    comprobarLimiteAntesDeTest(cantidadPedida).then(cantidad => {
+        if (cantidad === 0) return;
+        _arrancarSimulacro(cantidad, conTiempo);
+    });
+}
+ 
+function _arrancarSimulacro(cantidad, conTiempo) {
     estadoApp.modo = 'simulacro';
     estadoApp.temasActivos = temas.map(t => t.id);
     estadoApp.indicePregunta = 0;
@@ -301,7 +331,7 @@ function iniciarSimulacro() {
     
     iniciarTest();
 }
-
+ 
 function obtenerPreguntasProporcionadas(cantidadTotal) {
     const totalPreguntas = temas.reduce((sum, t) => sum + t.preguntas.length, 0);
     let preguntasSeleccionadas = [];
@@ -324,7 +354,7 @@ function obtenerPreguntasProporcionadas(cantidadTotal) {
     preguntasSeleccionadas = mezclarArray(preguntasSeleccionadas);
     return preguntasSeleccionadas.slice(0, cantidadTotal);
 }
-
+ 
 // ============================================
 // MEZCLAR OPCIONES
 // ============================================
@@ -335,14 +365,14 @@ function mezclarOpcionesPregunta(pregunta) {
     const indicesMezclados = mezclarArray(indices);
     return indicesMezclados;
 }
-
+ 
 function inicializarOpcionesMezcladas() {
     // Crear array de opciones mezcladas para cada pregunta
     estadoApp.opcionesMezcladas = estadoApp.preguntasActuales.map(pregunta => 
         mezclarOpcionesPregunta(pregunta)
     );
 }
-
+ 
 // ============================================
 // TEST
 // ============================================
@@ -356,7 +386,7 @@ function iniciarTest() {
     
     mostrarPregunta();
 }
-
+ 
 function mostrarPregunta() {
     const pregunta = estadoApp.preguntasActuales[estadoApp.indicePregunta];
     const total = estadoApp.preguntasActuales.length;
@@ -430,7 +460,7 @@ function mostrarPregunta() {
         guardarPreguntasVistas();
     }
 }
-
+ 
 function seleccionarOpcion(indiceOpcion) {
     if (estadoApp.respuestas[estadoApp.indicePregunta]) return;
     
@@ -442,6 +472,15 @@ function seleccionarOpcion(indiceOpcion) {
         correcta: pregunta.correcta,
         esCorrecta
     };
+    
+    // Guardar en Supabase (asíncrono, no bloquea la UI)
+    guardarRespuestaEnSupabase(pregunta, indiceOpcion, esCorrecta, 'estudio')
+        .then(ok => {
+            if (!ok) {
+                // El muro ya se ha mostrado por la función. Marcar la respuesta como no contabilizada.
+                estadoApp.respuestas[estadoApp.indicePregunta] = null;
+            }
+        });
     
     // Si es incorrecta, añadir a falladas automáticamente
     if (!esCorrecta) {
@@ -463,7 +502,7 @@ function seleccionarOpcion(indiceOpcion) {
         }, 500);
     }
 }
-
+ 
 function seleccionarOpcionSimulacro(indiceOpcion) {
     const pregunta = estadoApp.preguntasActuales[estadoApp.indicePregunta];
     const opciones = document.querySelectorAll('.opcion');
@@ -482,7 +521,7 @@ function seleccionarOpcionSimulacro(indiceOpcion) {
     
     renderizarMiniMapa();
 }
-
+ 
 function mostrarResultadoPregunta() {
     const pregunta = estadoApp.preguntasActuales[estadoApp.indicePregunta];
     const respuesta = estadoApp.respuestas[estadoApp.indicePregunta];
@@ -507,21 +546,21 @@ function mostrarResultadoPregunta() {
     
     renderizarMiniMapa();
 }
-
+ 
 function actualizarBotonesNavegacion() {
     document.getElementById('btnAnterior').disabled = estadoApp.indicePregunta === 0;
     
     const ultimaPregunta = estadoApp.indicePregunta === estadoApp.preguntasActuales.length - 1;
     document.getElementById('btnSiguiente').textContent = ultimaPregunta ? 'Finalizar' : 'Siguiente →';
 }
-
+ 
 function preguntaAnterior() {
     if (estadoApp.indicePregunta > 0) {
         estadoApp.indicePregunta--;
         mostrarPregunta();
     }
 }
-
+ 
 function siguientePregunta() {
     if (estadoApp.indicePregunta < estadoApp.preguntasActuales.length - 1) {
         estadoApp.indicePregunta++;
@@ -530,12 +569,12 @@ function siguientePregunta() {
         finalizarTest();
     }
 }
-
+ 
 function irAPregunta(indice) {
     estadoApp.indicePregunta = indice;
     mostrarPregunta();
 }
-
+ 
 function renderizarMiniMapa() {
     const container = document.getElementById('miniMapa');
     container.innerHTML = '';
@@ -566,7 +605,7 @@ function renderizarMiniMapa() {
         container.appendChild(div);
     });
 }
-
+ 
 function finalizarTest() {
     detenerCronometro();
     
@@ -575,6 +614,15 @@ function finalizarTest() {
             const respuesta = estadoApp.respuestas[i];
             if (respuesta) {
                 actualizarEstadisticaPregunta(pregunta.temaId, respuesta.esCorrecta);
+                
+                // Guardar en Supabase (silencioso; si falla por límite, se ignora aquí
+                // porque ya respondió y queremos que vea sus resultados)
+                guardarRespuestaEnSupabase(
+                    pregunta,
+                    respuesta.seleccionada,
+                    respuesta.esCorrecta,
+                    'simulacro'
+                );
                 
                 // Guardar falladas automáticamente
                 if (!respuesta.esCorrecta) {
@@ -586,13 +634,13 @@ function finalizarTest() {
     
     mostrarResultados();
 }
-
+ 
 function abandonarTest() {
     if (confirm('¿Seguro que quieres abandonar el test?')) {
         volverDashboard();
     }
 }
-
+ 
 // ============================================
 // RESULTADOS
 // ============================================
@@ -642,7 +690,7 @@ function mostrarResultados() {
         detalleContainer.appendChild(div);
     });
 }
-
+ 
 function repasarFalladas() {
     const falladas = [];
     estadoApp.preguntasActuales.forEach((pregunta, i) => {
@@ -664,7 +712,7 @@ function repasarFalladas() {
     
     iniciarTest();
 }
-
+ 
 // ============================================
 // GUARDAR PREGUNTAS
 // ============================================
@@ -685,7 +733,7 @@ function toggleGuardarPregunta() {
     actualizarBotonGuardar();
     actualizarEstadisticasDashboard();
 }
-
+ 
 function actualizarBotonGuardar() {
     const pregunta = estadoApp.preguntasActuales[estadoApp.indicePregunta];
     const guardada = estadoApp.preguntasGuardadas.some(p => 
@@ -703,7 +751,7 @@ function actualizarBotonGuardar() {
         icono.textContent = '☆';
     }
 }
-
+ 
 function renderizarPreguntasGuardadas() {
     console.log('=== INICIO renderizarPreguntasGuardadas ===');
     console.log('Cantidad guardadas:', estadoApp.preguntasGuardadas.length);
@@ -782,7 +830,7 @@ function renderizarPreguntasGuardadas() {
     
     console.log('=== FIN renderizarPreguntasGuardadas ===');
 }
-
+ 
 function iniciarRepasarGuardadas() {
     if (estadoApp.preguntasGuardadas.length === 0) {
         alert('No tienes preguntas guardadas');
@@ -796,7 +844,7 @@ function iniciarRepasarGuardadas() {
     
     iniciarTest();
 }
-
+ 
 function eliminarGuardada(index) {
     if (confirm('¿Eliminar esta pregunta guardada?')) {
         estadoApp.preguntasGuardadas.splice(index, 1);
@@ -805,7 +853,7 @@ function eliminarGuardada(index) {
         actualizarEstadisticasDashboard();
     }
 }
-
+ 
 // ============================================
 // PREGUNTAS FALLADAS
 // ============================================
@@ -821,7 +869,7 @@ function agregarAFalladas(pregunta) {
         actualizarEstadisticasDashboard();
     }
 }
-
+ 
 function renderizarPreguntasFalladas() {
     console.log('=== INICIO renderizarPreguntasFalladas ===');
     console.log('Cantidad falladas:', estadoApp.preguntasFalladas.length);
@@ -885,7 +933,7 @@ function renderizarPreguntasFalladas() {
     
     console.log('=== FIN renderizarPreguntasFalladas ===');
 }
-
+ 
 function iniciarRepasarFalladas() {
     if (estadoApp.preguntasFalladas.length === 0) {
         alert('No tienes preguntas falladas');
@@ -899,7 +947,7 @@ function iniciarRepasarFalladas() {
     
     iniciarTest();
 }
-
+ 
 function eliminarFallada(index) {
     if (confirm('¿Eliminar esta pregunta fallada?')) {
         estadoApp.preguntasFalladas.splice(index, 1);
@@ -908,7 +956,7 @@ function eliminarFallada(index) {
         actualizarEstadisticasDashboard();
     }
 }
-
+ 
 function limpiarFalladas() {
     if (confirm('¿Borrar TODAS las preguntas falladas?')) {
         estadoApp.preguntasFalladas = [];
@@ -917,7 +965,7 @@ function limpiarFalladas() {
         actualizarEstadisticasDashboard();
     }
 }
-
+ 
 // ============================================
 // ESTADÍSTICAS
 // ============================================
@@ -970,7 +1018,7 @@ function renderizarEstadisticasDetalladas() {
         container.appendChild(div);
     });
 }
-
+ 
 function actualizarEstadisticaPregunta(temaId, esCorrecta) {
     if (!estadoApp.estadisticas[temaId]) {
         estadoApp.estadisticas[temaId] = { respondidas: 0, correctas: 0 };
@@ -983,7 +1031,7 @@ function actualizarEstadisticaPregunta(temaId, esCorrecta) {
     
     guardarEstadisticas();
 }
-
+ 
 function resetearProgresoDeTema(temaId) {
     if (confirm('¿Resetear el progreso de este tema?')) {
         estadoApp.preguntasVistas = estadoApp.preguntasVistas.filter(id => 
@@ -997,7 +1045,7 @@ function resetearProgresoDeTema(temaId) {
         renderizarEstadisticasDetalladas();
     }
 }
-
+ 
 function resetearTodoElProgreso() {
     if (confirm('¿Resetear TODO el progreso?')) {
         estadoApp.preguntasVistas = [];
@@ -1011,7 +1059,7 @@ function resetearTodoElProgreso() {
         alert('Progreso reseteado');
     }
 }
-
+ 
 function resetearPreguntasVistas(temasIds) {
     temasIds.forEach(temaId => {
         estadoApp.preguntasVistas = estadoApp.preguntasVistas.filter(id => 
@@ -1020,7 +1068,7 @@ function resetearPreguntasVistas(temasIds) {
     });
     guardarPreguntasVistas();
 }
-
+ 
 // ============================================
 // CRONÓMETRO
 // ============================================
@@ -1045,14 +1093,14 @@ function iniciarCronometro(segundos) {
     actualizar();
     estadoApp.intervaloTiempo = setInterval(actualizar, 1000);
 }
-
+ 
 function detenerCronometro() {
     if (estadoApp.intervaloTiempo) {
         clearInterval(estadoApp.intervaloTiempo);
         estadoApp.intervaloTiempo = null;
     }
 }
-
+ 
 // ============================================
 // UTILIDADES
 // ============================================
