@@ -4,20 +4,18 @@
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Comprobar si ya hay sesión activa
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await sb.auth.getSession();
     
     if (session) {
-        // Usuario ya logueado
         currentUser = session.user;
         await cargarPerfil();
         mostrarDashboard();
     } else {
-        // No hay sesión, mostrar login
         mostrarLogin();
     }
     
-    // Listener para cuando el usuario inicia o cierra sesión
-    supabase.auth.onAuthStateChange(async (event, session) => {
+    // Listener para cambios de sesión (login / logout)
+    sb.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN') {
             currentUser = session.user;
             await cargarPerfil();
@@ -31,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Botón de login con Google
     document.getElementById('btnLoginGoogle').addEventListener('click', async () => {
-        const { error } = await supabase.auth.signInWithOAuth({
+        const { error } = await sb.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 redirectTo: window.location.origin + window.location.pathname
@@ -45,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function cargarPerfil() {
-    const { data, error } = await supabase
+    const { data, error } = await sb
         .from('profiles')
         .select('*')
         .eq('id', currentUser.id)
@@ -71,5 +69,5 @@ function mostrarDashboard() {
 }
 
 async function cerrarSesion() {
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
 }
