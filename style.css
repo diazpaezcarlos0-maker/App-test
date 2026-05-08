@@ -1004,3 +1004,122 @@ body {
     font-size: 0.85em;
     color: #888;
 }
+/* ===== Muro de Pago ===== */
+.muro-pago {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+ 
+.muro-pago.active {
+    display: flex;
+}
+ 
+.muro-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+}
+ 
+.muro-card {
+    position: relative;
+    background: var(--card-bg, #fff);
+    border-radius: 20px;
+    max-width: 460px;
+    width: 100%;
+    padding: 36px 30px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: muroAparece 0.3s ease-out;
+}
+ 
+@keyframes muroAparece {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+ 
+.muro-icono {
+    font-size: 3em;
+    margin-bottom: 8px;
+}
+ 
+.muro-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.5em;
+}
+ 
+.muro-card p {
+    color: #666;
+    margin: 0 0 20px;
+    line-height: 1.5;
+}
+ 
+.muro-features {
+    text-align: left;
+    margin: 24px 0;
+    padding: 20px;
+    background: rgba(26, 54, 93, 0.05);
+    border-radius: 12px;
+}
+ 
+.muro-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 0.95em;
+}
+ 
+.muro-feature .check {
+    color: #2ecc71;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+ 
+.btn-suscribirse {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.05em;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+ 
+.btn-suscribirse:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(26, 54, 93, 0.3);
+}
+ 
+.btn-secundario {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: #666;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+ 
+.btn-secundario:hover {
+    background: #f5f5f5;
+}
+ 
+.muro-info {
+    margin-top: 16px;
+    font-size: 0.85em;
+    color: #999;
+}
