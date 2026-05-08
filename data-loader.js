@@ -33,54 +33,41 @@ const CACHE_DURACION_MS = 24 * 60 * 60 * 1000; // 24 horas
  * Carga las preguntas desde Supabase (o caché si está disponible y reciente).
  * Llena la variable global `temas` con la estructura que espera app.js.
  */
-async function cargarPreguntasDesdeSupabase() {
-    // 1. Intentar leer de caché localStorage primero (instantáneo)
-    const cacheRaw = localStorage.getItem(CACHE_KEY);
-    const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
- 
-    if (cacheRaw && cacheTime) {
-        const edad = Date.now() - parseInt(cacheTime);
-        if (edad < CACHE_DURACION_MS) {
-            try {
-                temas = JSON.parse(cacheRaw);
-                console.log('✅ Preguntas cargadas desde caché (' + temas.length + ' temas)');
-                // Refrescar en segundo plano sin bloquear
-                refrescarPreguntasEnBackground();
-                return temas;
-            } catch (e) {
-                console.warn('Cache corrupta, descargando de Supabase');
-            }
-        }
-    }
- 
-    // 2. Si no hay caché o está vieja, descargar de Supabase
-    return await descargarYGuardarEnCache();
-}
- 
 async function descargarYGuardarEnCache() {
     console.log('⬇️ Descargando preguntas de Supabase...');
     
-    const { data, error } = await sb
-        .from('questions')
-        .select('id, tema, pregunta, opciones, respuesta_correcta, explicacion')
-        .order('id');
+    // Supabase limita a 1000 filas por consulta. Paginar para traerlas todas.
+    const TAMANO_PAGINA = 1000;
+    let todasLasPreguntas = [];
+    let desde = 0;
     
-    if (error) {
-        console.error('Error descargando preguntas:', error);
-        // Si falla pero hay caché vieja, mejor eso que nada
-        const cacheRaw = localStorage.getItem(CACHE_KEY);
-        if (cacheRaw) {
-            temas = JSON.parse(cacheRaw);
-            return temas;
+    while (true) {
+        const { data, error } = await sb
+            .from('questions')
+            .select('id, tema, pregunta, opciones, respuesta_correcta, explicacion')
+            .order('id')
+            .range(desde, desde + TAMANO_PAGINA - 1);
+        
+        if (error) {
+            console.error('Error descargando preguntas:', error);
+            const cacheRaw = localStorage.getItem(CACHE_KEY);
+            if (cacheRaw) {
+                temas = JSON.parse(cacheRaw);
+                return temas;
+            }
+            throw error;
         }
-        throw error;
+        
+        todasLasPreguntas = todasLasPreguntas.concat(data);
+        
+        if (data.length < TAMANO_PAGINA) break; // ya no hay más
+        desde += TAMANO_PAGINA;
     }
     
     // Agrupar por tema y construir la estructura igual que data.js
     const temasMap = {};
-    data.forEach(q => {
+    todasLasPreguntas.forEach(q => {
         if (!temasMap[q.tema]) {
-            // Extraer "Tema N" del nombre completo "Tema N - ..."
             const match = q.tema.match(/Tema\s+(\d+)/i);
             const numTema = match ? parseInt(match[1]) : Object.keys(temasMap).length + 1;
             const claveIcono = match ? 'Tema ' + match[1] : null;
@@ -93,11 +80,8 @@ async function descargarYGuardarEnCache() {
             };
         }
         
-        // Importante: app.js identifica preguntas por su posición en el array
-        // (idPregunta = `${temaId}-${index}`). Para que las estadísticas existentes
-        // de los usuarios sigan funcionando, mantenemos también el id de DB.
         temasMap[q.tema].preguntas.push({
-            dbId: q.id, // ID real en la BD, lo necesitamos para guardar progreso
+            dbId: q.id,
             texto: q.pregunta,
             opciones: q.opciones,
             correcta: q.respuesta_correcta,
@@ -107,7 +91,6 @@ async function descargarYGuardarEnCache() {
     
     temas = Object.values(temasMap).sort((a, b) => a.id - b.id);
     
-    // Guardar en caché
     try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(temas));
         localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
@@ -115,7 +98,7 @@ async function descargarYGuardarEnCache() {
         console.warn('No se pudo guardar la caché (posiblemente llena):', e);
     }
     
-    console.log('✅ ' + data.length + ' preguntas cargadas en ' + temas.length + ' temas');
+    console.log('✅ ' + todasLasPreguntas.length + ' preguntas cargadas en ' + temas.length + ' temas');
     return temas;
 }
  
