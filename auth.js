@@ -3,6 +3,22 @@
 // ============================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Detectar si volvemos de un pago de Stripe
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('pago') === 'ok') {
+        // Esperar un momento para que el webhook haya procesado el pago
+        setTimeout(() => {
+            alert('¡Pago realizado correctamente! Bienvenido a Premium 🎉');
+            // Limpiar la URL
+            window.history.replaceState({}, '', window.location.pathname);
+            // Recargar para refrescar el perfil
+            window.location.reload();
+        }, 2000);
+        return;
+    } else if (params.get('pago') === 'cancelado') {
+        alert('Has cancelado el pago. Cuando quieras puedes volver a intentarlo.');
+        window.history.replaceState({}, '', window.location.pathname);
+    }
     const { data: { session } } = await sb.auth.getSession();
     
     if (session) {
