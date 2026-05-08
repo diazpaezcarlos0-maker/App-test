@@ -1,6 +1,3 @@
-
-Copiar
-
 // ============================================
 // PAYWALL — Límite diario de 20 preguntas para usuarios free
 // ============================================
