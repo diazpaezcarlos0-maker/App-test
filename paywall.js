@@ -192,10 +192,58 @@ function crearMuroPago() {
 /**
  * Placeholder — se conectará con Stripe en la siguiente fase.
  */
-function iniciarSuscripcion() {
-    alert(
-        'Próximamente: pagos con Stripe.\n\n' +
-        'De momento esto es solo un placeholder. ' +
-        'En el siguiente paso conectaremos el botón con el Stripe Checkout real.'
-    );
+async function iniciarSuscripcion() {
+    if (!currentUser) {
+        alert('Debes iniciar sesión primero.');
+        return;
+    }
+    
+    // Mostrar feedback al usuario
+    const btn = document.querySelector('.btn-suscribirse');
+    const textoOriginal = btn ? btn.textContent : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Redirigiendo a Stripe...';
+    }
+    
+    try {
+        // Obtener token de sesión actual
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) {
+            alert('Tu sesión ha expirado. Vuelve a iniciar sesión.');
+            return;
+        }
+        
+        // Llamar a la Edge Function crear-checkout
+        const response = await fetch(
+            `${SUPABASE_URL}/functions/v1/crear-checkout`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${session.access_token}`,
+                    'Content-Type': 'application/json',
+                    'apikey': SUPABASE_ANON_KEY
+                },
+                body: JSON.stringify({
+                    returnUrl: window.location.origin + window.location.pathname
+                })
+            }
+        );
+        
+        const data = await response.json();
+        
+        if (!response.ok || !data.url) {
+            throw new Error(data.error || 'No se pudo crear la sesión de pago');
+        }
+        
+        // Redirigir a Stripe Checkout
+        window.location.href = data.url;
+    } catch (error) {
+        console.error('Error iniciando suscripción:', error);
+        alert('Error al iniciar la suscripción: ' + error.message);
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = textoOriginal;
+        }
+    }
 }
