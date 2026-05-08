@@ -1,7 +1,7 @@
-// ============================
+/ ============================
 // AUTENTICACIÓN
 // ============================
-
+ 
 document.addEventListener('DOMContentLoaded', async () => {
     // Comprobar si ya hay sesión activa
     const { data: { session } } = await sb.auth.getSession();
@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (session) {
         currentUser = session.user;
         await cargarPerfil();
+        await inicializarAppPostLogin();
         mostrarDashboard();
     } else {
         mostrarLogin();
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (event === 'SIGNED_IN') {
             currentUser = session.user;
             await cargarPerfil();
+            await inicializarAppPostLogin();
             mostrarDashboard();
         } else if (event === 'SIGNED_OUT') {
             currentUser = null;
@@ -41,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
-
+ 
 async function cargarPerfil() {
     const { data, error } = await sb
         .from('profiles')
@@ -57,17 +59,17 @@ async function cargarPerfil() {
     userProfile = data;
     console.log('Perfil cargado:', userProfile);
 }
-
+ 
 function mostrarLogin() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('pantallaLogin').classList.add('active');
 }
-
+ 
 function mostrarDashboard() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('dashboard').classList.add('active');
 }
-
+ 
 async function cerrarSesion() {
     await sb.auth.signOut();
 }
