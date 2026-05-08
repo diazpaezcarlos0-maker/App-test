@@ -1,21 +1,9 @@
 // ============================================
 // DATA LOADER — Carga preguntas desde Supabase
 // ============================================
-// Reemplaza el array global `temas` que antes venía de data.js.
-// Mantiene la MISMA estructura: temas → preguntas, para que app.js
-// no tenga que cambiar casi nada.
-//
-// Estructura esperada por app.js:
-// temas = [
-//   { id: 1, nombre: "Tema 1...", icono: "⚠️", preguntas: [
-//     { texto, opciones: [...], correcta: 0|1|2, explicacion }
-//   ]}
-// ]
- 
-// Variable global que mantiene la misma forma que data.js original
+
 let temas = [];
- 
-// Mapeo de iconos por tema (para que la UI siga viéndose igual)
+
 const ICONOS_TEMAS = {
     'Tema 1': '⚠️', 'Tema 2': '⚖️', 'Tema 3': '🏛️', 'Tema 4': '🏢',
     'Tema 5': '📍', 'Tema 6': '📜', 'Tema 7': '📜', 'Tema 8': '📜',
@@ -24,19 +12,38 @@ const ICONOS_TEMAS = {
     'Tema 17': '📊', 'Tema 18': '🏗️', 'Tema 19': '🏗️', 'Tema 20': '🏗️',
     'Tema 21': '📋', 'Tema 22': '📋'
 };
- 
+
 const CACHE_KEY = 'preguntas_cache_v1';
 const CACHE_TIMESTAMP_KEY = 'preguntas_cache_timestamp';
-const CACHE_DURACION_MS = 24 * 60 * 60 * 1000; // 24 horas
- 
-/**
- * Carga las preguntas desde Supabase (o caché si está disponible y reciente).
- * Llena la variable global `temas` con la estructura que espera app.js.
- */
+const CACHE_DURACION_MS = 24 * 60 * 60 * 1000;
+
+async function cargarPreguntasDesdeSupabase() {
+    const cacheRaw = localStorage.getItem(CACHE_KEY);
+    const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+
+    if (cacheRaw && cacheTime) {
+        const edad = Date.now() - parseInt(cacheTime);
+        if (edad < CACHE_DURACION_MS) {
+            try {
+                const datos = JSON.parse(cacheRaw);
+                if (Array.isArray(datos) && datos.length >= 20) {
+                    temas = datos;
+                    console.log('✅ Preguntas cargadas desde caché (' + temas.length + ' temas)');
+                    refrescarPreguntasEnBackground();
+                    return temas;
+                }
+            } catch (e) {
+                console.warn('Cache corrupta, descargando de Supabase');
+            }
+        }
+    }
+
+    return await descargarYGuardarEnCache();
+}
+
 async function descargarYGuardarEnCache() {
     console.log('⬇️ Descargando preguntas de Supabase...');
     
-    // Supabase limita a 1000 filas por consulta. Paginar para traerlas todas.
     const TAMANO_PAGINA = 1000;
     let todasLasPreguntas = [];
     let desde = 0;
@@ -60,11 +67,10 @@ async function descargarYGuardarEnCache() {
         
         todasLasPreguntas = todasLasPreguntas.concat(data);
         
-        if (data.length < TAMANO_PAGINA) break; // ya no hay más
+        if (data.length < TAMANO_PAGINA) break;
         desde += TAMANO_PAGINA;
     }
     
-    // Agrupar por tema y construir la estructura igual que data.js
     const temasMap = {};
     todasLasPreguntas.forEach(q => {
         if (!temasMap[q.tema]) {
@@ -101,19 +107,15 @@ async function descargarYGuardarEnCache() {
     console.log('✅ ' + todasLasPreguntas.length + ' preguntas cargadas en ' + temas.length + ' temas');
     return temas;
 }
- 
+
 async function refrescarPreguntasEnBackground() {
-    // Refrescar la caché silenciosamente sin bloquear la UI
     try {
         await descargarYGuardarEnCache();
     } catch (e) {
-        // Silencioso, el usuario ya está usando la caché
+        // Silencioso
     }
 }
- 
-/**
- * Limpia la caché de preguntas (útil si añades nuevas preguntas en Supabase).
- */
+
 function limpiarCachePreguntas() {
     localStorage.removeItem(CACHE_KEY);
     localStorage.removeItem(CACHE_TIMESTAMP_KEY);
