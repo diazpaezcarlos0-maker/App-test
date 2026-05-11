@@ -241,22 +241,6 @@ function cargarTemasSeleccionables() {
     </div>
 `;
         
-        const checkbox = div.querySelector('input');
-        checkbox.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                div.classList.add('selected');
-            } else {
-                div.classList.remove('selected');
-            }
-        });
-        
-        div.addEventListener('click', (e) => {
-            if (e.target.tagName !== 'INPUT') {
-                checkbox.checked = !checkbox.checked;
-                checkbox.dispatchEvent(new Event('change'));
-            }
-        });
-        
         container.appendChild(div);
     });
 }
