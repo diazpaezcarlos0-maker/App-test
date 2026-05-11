@@ -3,6 +3,7 @@
 // ============================================
 let estadoApp = {
     modo: null,
+    tipoPreguntaActual: 'Test',
     temasActivos: [],
     preguntasActuales: [],
     indicePregunta: 0,
@@ -253,6 +254,7 @@ function ajustarCantidad(delta) {
 }
 
 function iniciarModoEstudio() {
+    estadoApp.tipoPreguntaActual = 'Test';
     const temasSeleccionados = Array.from(document.querySelectorAll('#temasSeleccionEstudio input:checked'))
         .map(cb => parseInt(cb.value));
     
@@ -287,7 +289,9 @@ function _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas)
                 if (soloPreguntasNuevas && yaVista) {
                     return;
                 }
-                
+                if ((p.Tipo || 'Test') !== estadoApp.tipoPreguntaActual) {
+                    return;
+                }
                 preguntasDisponibles.push({
                     ...p,
                     temaId: tema.id,
@@ -1205,4 +1209,8 @@ function mezclarArray(array) {
         [copia[i], copia[j]] = [copia[j], copia[i]];
     }
     return copia;
+}
+function iniciarPracticas() {
+    estadoApp.tipoPreguntaActual = 'Practica';
+    iniciarModoEstudio();
 }
