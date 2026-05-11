@@ -254,6 +254,7 @@ function ajustarCantidad(delta) {
 }
 
 function iniciarModoEstudio() {
+
     let temasSeleccionados = [];
 
     if (estadoApp.temaSeleccionadoRapido) {
@@ -269,10 +270,15 @@ function iniciarModoEstudio() {
         return;
     }
 
-    const cantidadPedida = parseInt(document.getElementById('cantidadPreguntas').value);
-    const soloPreguntasNuevas = document.getElementById('soloPreguntasNuevas').checked;
+    const cantidadPedida = parseInt(
+        document.getElementById('cantidadPreguntas').value
+    );
+
+    const soloPreguntasNuevas =
+        document.getElementById('soloPreguntasNuevas').checked;
 
     comprobarLimiteAntesDeTest(cantidadPedida).then(cantidad => {
+
         if (cantidad === 0) return;
 
         _arrancarModoEstudio(
@@ -280,6 +286,9 @@ function iniciarModoEstudio() {
             cantidad,
             soloPreguntasNuevas
         );
+
+        // IMPORTANTE
+        estadoApp.temaSeleccionadoRapido = null;
     });
 }
 function _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas) {
