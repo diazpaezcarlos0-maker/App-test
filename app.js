@@ -4,6 +4,7 @@
 let estadoApp = {
     modo: null,
     tipoPreguntaActual: 'Test',
+    temaSeleccionadoRapido: null,
     temasActivos: [],
     preguntasActuales: [],
     indicePregunta: 0,
@@ -253,24 +254,34 @@ function ajustarCantidad(delta) {
 }
 
 function iniciarModoEstudio() {
-    estadoApp.tipoPreguntaActual = 'Test';
-    const temasSeleccionados = Array.from(document.querySelectorAll('#temasSeleccionEstudio input:checked'))
-        .map(cb => parseInt(cb.value));
-    
+    let temasSeleccionados = [];
+
+    if (estadoApp.temaSeleccionadoRapido) {
+        temasSeleccionados = [estadoApp.temaSeleccionadoRapido];
+    } else {
+        temasSeleccionados = Array.from(
+            document.querySelectorAll('#temasSeleccionEstudio input:checked')
+        ).map(cb => parseInt(cb.value));
+    }
+
     if (temasSeleccionados.length === 0) {
         alert('Selecciona al menos un tema');
         return;
     }
-    
+
     const cantidadPedida = parseInt(document.getElementById('cantidadPreguntas').value);
     const soloPreguntasNuevas = document.getElementById('soloPreguntasNuevas').checked;
-    
+
     comprobarLimiteAntesDeTest(cantidadPedida).then(cantidad => {
         if (cantidad === 0) return;
-        _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas);
+
+        _arrancarModoEstudio(
+            temasSeleccionados,
+            cantidad,
+            soloPreguntasNuevas
+        );
     });
 }
-
 function _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas) {
     estadoApp.modo = 'estudio';
     estadoApp.temasActivos = temasSeleccionados;
@@ -1215,10 +1226,35 @@ function iniciarPracticas() {
 }
 function iniciarTemaTest(temaId) {
     estadoApp.tipoPreguntaActual = 'Test';
-    _arrancarModoEstudio([temaId], 10, false);
+    estadoApp.temaSeleccionadoRapido = temaId;
+
+    document.getElementById('cantidadPreguntas').scrollIntoView({
+        behavior: 'smooth'
+    });
 }
 
 function iniciarTemaPractica(temaId) {
     estadoApp.tipoPreguntaActual = 'Practica';
-    _arrancarModoEstudio([temaId], 10, false);
+    estadoApp.temaSeleccionadoRapido = temaId;
+
+    document.getElementById('cantidadPreguntas').scrollIntoView({
+        behavior: 'smooth'
+    });
+}
+function iniciarTemaTest(temaId) {
+    estadoApp.tipoPreguntaActual = 'Test';
+    estadoApp.temaSeleccionadoRapido = temaId;
+
+    document.getElementById('cantidadPreguntas').scrollIntoView({
+        behavior: 'smooth'
+    });
+}
+
+function iniciarTemaPractica(temaId) {
+    estadoApp.tipoPreguntaActual = 'Practica';
+    estadoApp.temaSeleccionadoRapido = temaId;
+
+    document.getElementById('cantidadPreguntas').scrollIntoView({
+        behavior: 'smooth'
+    });
 }
