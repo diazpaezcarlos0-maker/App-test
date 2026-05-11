@@ -91,7 +91,7 @@ async function descargarYGuardarEnCache() {
             texto: q.pregunta,
             opciones: q.opciones,
             correcta: q.respuesta_correcta,
-            explicacion: q.explicacion
+            explicacion: q.explicacion,
             Tipo: q.Tipo || 'Test'
         });
     });
