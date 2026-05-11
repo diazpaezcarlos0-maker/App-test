@@ -1229,3 +1229,12 @@ function iniciarPracticas() {
     estadoApp.tipoPreguntaActual = 'Practica';
     iniciarModoEstudio();
 }
+function iniciarTemaTest(temaId) {
+    estadoApp.tipoPreguntaActual = 'Test';
+    _arrancarModoEstudio([temaId], 10, false);
+}
+
+function iniciarTemaPractica(temaId) {
+    estadoApp.tipoPreguntaActual = 'Practica';
+    _arrancarModoEstudio([temaId], 10, false);
+}
