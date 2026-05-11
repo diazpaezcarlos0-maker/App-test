@@ -218,13 +218,28 @@ function cargarTemasSeleccionables() {
         
         const icono = tema.icono || '📚'; // Icono por defecto si no tiene
         
-        div.innerHTML = `
-            <input type="checkbox" id="tema-${tema.id}" value="${tema.id}">
-            <div class="tema-info">
-                <div class="tema-nombre"><span style="font-size: 1.3em; margin-right: 0.5rem;">${icono}</span>${tema.nombre}</div>
-                <div class="tema-stats">${tema.preguntas.length} preguntas · ${preguntasVistasDelTema} vistas</div>
-            </div>
-        `;
+       div.innerHTML = `
+    <div class="tema-info">
+        <div class="tema-nombre">
+            <span style="font-size: 1.3em; margin-right: 0.5rem;">${icono}</span>
+            ${tema.nombre}
+        </div>
+
+        <div class="tema-stats">
+            ${tema.preguntas.length} preguntas · ${preguntasVistasDelTema} vistas
+        </div>
+
+        <div class="tema-botones">
+            <button class="btn-mini-test" onclick="iniciarTemaTest(${tema.id})">
+                📘 Test
+            </button>
+
+            <button class="btn-mini-practica" onclick="iniciarTemaPractica(${tema.id})">
+                📝 Prácticas
+            </button>
+        </div>
+    </div>
+`;
         
         const checkbox = div.querySelector('input');
         checkbox.addEventListener('change', (e) => {
