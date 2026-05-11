@@ -1241,20 +1241,3 @@ function iniciarTemaPractica(temaId) {
         behavior: 'smooth'
     });
 }
-function iniciarTemaTest(temaId) {
-    estadoApp.tipoPreguntaActual = 'Test';
-    estadoApp.temaSeleccionadoRapido = temaId;
-
-    document.getElementById('cantidadPreguntas').scrollIntoView({
-        behavior: 'smooth'
-    });
-}
-
-function iniciarTemaPractica(temaId) {
-    estadoApp.tipoPreguntaActual = 'Practica';
-    estadoApp.temaSeleccionadoRapido = temaId;
-
-    document.getElementById('cantidadPreguntas').scrollIntoView({
-        behavior: 'smooth'
-    });
-}
