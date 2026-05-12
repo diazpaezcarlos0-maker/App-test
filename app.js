@@ -3,8 +3,6 @@
 // ============================================
 let estadoApp = {
     modo: null,
-    tipoPreguntaActual: 'Test',
-    temaSeleccionadoRapido: null,
     temasActivos: [],
     preguntasActuales: [],
     indicePregunta: 0,
@@ -219,28 +217,29 @@ function cargarTemasSeleccionables() {
         
         const icono = tema.icono || '📚'; // Icono por defecto si no tiene
         
-       div.innerHTML = `
-    <div class="tema-info">
-        <div class="tema-nombre">
-            <span style="font-size: 1.3em; margin-right: 0.5rem;">${icono}</span>
-            ${tema.nombre}
-        </div>
-
-        <div class="tema-stats">
-            ${tema.preguntas.length} preguntas · ${preguntasVistasDelTema} vistas
-        </div>
-
-        <div class="tema-botones">
-            <button class="btn-mini-test" onclick="iniciarTemaTest(${tema.id})">
-                📘 Test
-            </button>
-
-            <button class="btn-mini-practica" onclick="iniciarTemaPractica(${tema.id})">
-                📝 Prácticas
-            </button>
-        </div>
-    </div>
-`;
+        div.innerHTML = `
+            <input type="checkbox" id="tema-${tema.id}" value="${tema.id}">
+            <div class="tema-info">
+                <div class="tema-nombre"><span style="font-size: 1.3em; margin-right: 0.5rem;">${icono}</span>${tema.nombre}</div>
+                <div class="tema-stats">${tema.preguntas.length} preguntas · ${preguntasVistasDelTema} vistas</div>
+            </div>
+        `;
+        
+        const checkbox = div.querySelector('input');
+        checkbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                div.classList.add('selected');
+            } else {
+                div.classList.remove('selected');
+            }
+        });
+        
+        div.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT') {
+                checkbox.checked = !checkbox.checked;
+                checkbox.dispatchEvent(new Event('change'));
+            }
+        });
         
         container.appendChild(div);
     });
@@ -254,43 +253,23 @@ function ajustarCantidad(delta) {
 }
 
 function iniciarModoEstudio() {
-
-    let temasSeleccionados = [];
-
-    if (estadoApp.temaSeleccionadoRapido) {
-        temasSeleccionados = [estadoApp.temaSeleccionadoRapido];
-    } else {
-        temasSeleccionados = Array.from(
-            document.querySelectorAll('#temasSeleccionEstudio input:checked')
-        ).map(cb => parseInt(cb.value));
-    }
-
+    const temasSeleccionados = Array.from(document.querySelectorAll('#temasSeleccionEstudio input:checked'))
+        .map(cb => parseInt(cb.value));
+    
     if (temasSeleccionados.length === 0) {
         alert('Selecciona al menos un tema');
         return;
     }
-
-    const cantidadPedida = parseInt(
-        document.getElementById('cantidadPreguntas').value
-    );
-
-    const soloPreguntasNuevas =
-        document.getElementById('soloPreguntasNuevas').checked;
-
+    
+    const cantidadPedida = parseInt(document.getElementById('cantidadPreguntas').value);
+    const soloPreguntasNuevas = document.getElementById('soloPreguntasNuevas').checked;
+    
     comprobarLimiteAntesDeTest(cantidadPedida).then(cantidad => {
-
         if (cantidad === 0) return;
-
-        _arrancarModoEstudio(
-            temasSeleccionados,
-            cantidad,
-            soloPreguntasNuevas
-        );
-
-        // IMPORTANTE
-        estadoApp.temaSeleccionadoRapido = null;
+        _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas);
     });
 }
+
 function _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas) {
     estadoApp.modo = 'estudio';
     estadoApp.temasActivos = temasSeleccionados;
@@ -308,9 +287,7 @@ function _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas)
                 if (soloPreguntasNuevas && yaVista) {
                     return;
                 }
-                if ((p.Tipo || 'Test') !== estadoApp.tipoPreguntaActual) {
-                    return;
-                }
+                
                 preguntasDisponibles.push({
                     ...p,
                     temaId: tema.id,
@@ -1228,25 +1205,4 @@ function mezclarArray(array) {
         [copia[i], copia[j]] = [copia[j], copia[i]];
     }
     return copia;
-}
-function iniciarPracticas() {
-    estadoApp.tipoPreguntaActual = 'Practica';
-    iniciarModoEstudio();
-}
-function iniciarTemaTest(temaId) {
-    estadoApp.tipoPreguntaActual = 'Test';
-    estadoApp.temaSeleccionadoRapido = temaId;
-
-    document.getElementById('cantidadPreguntas').scrollIntoView({
-        behavior: 'smooth'
-    });
-}
-
-function iniciarTemaPractica(temaId) {
-    estadoApp.tipoPreguntaActual = 'Practica';
-    estadoApp.temaSeleccionadoRapido = temaId;
-
-    document.getElementById('cantidadPreguntas').scrollIntoView({
-        behavior: 'smooth'
-    });
 }

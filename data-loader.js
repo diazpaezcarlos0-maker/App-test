@@ -51,7 +51,7 @@ async function descargarYGuardarEnCache() {
     while (true) {
         const { data, error } = await sb
             .from('questions')
-            .select('id, tema, pregunta, opciones, respuesta_correcta, explicacion, Tipo')
+            .select('id, tema, pregunta, opciones, respuesta_correcta, explicacion')
             .order('id')
             .range(desde, desde + TAMANO_PAGINA - 1);
         
@@ -91,8 +91,7 @@ async function descargarYGuardarEnCache() {
             texto: q.pregunta,
             opciones: q.opciones,
             correcta: q.respuesta_correcta,
-            explicacion: q.explicacion,
-            Tipo: q.Tipo || 'Test'
+            explicacion: q.explicacion
         });
     });
     
