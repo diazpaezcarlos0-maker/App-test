@@ -4,15 +4,46 @@
 
 const CONVOCATORIA_KEY = 'convocatoria_seleccionada';
 
-function mostrarPantallaConvocatoria() {
+async function mostrarPantallaConvocatoria() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('pantallaConvocatoria').classList.add('active');
+    
+    // Actualizar el contador de preguntas desde la BD
+    actualizarContadorPreguntas();
+}
+
+async function actualizarContadorPreguntas() {
+    const span = document.getElementById('convAytoCount');
+    if (!span) return;
+    
+    try {
+        // Usar la variable global temas que ya está cargada
+        if (typeof temas !== 'undefined' && Array.isArray(temas) && temas.length > 0) {
+            const total = temas.reduce((sum, t) => sum + (t.preguntas?.length || 0), 0);
+            span.textContent = total.toLocaleString('es-ES');
+            return;
+        }
+        
+        // Fallback: contar directamente de Supabase
+        const { count, error } = await sb
+            .from('questions')
+            .select('*', { count: 'exact', head: true });
+        
+        if (error) {
+            console.error('Error contando preguntas:', error);
+            span.textContent = '—';
+            return;
+        }
+        
+        span.textContent = (count || 0).toLocaleString('es-ES');
+    } catch (e) {
+        console.warn('No se pudo contar preguntas:', e);
+        if (span) span.textContent = '—';
+    }
 }
 
 function seleccionarConvocatoria(idConv) {
-    // Por ahora solo guardamos en localStorage para uso futuro
     localStorage.setItem(CONVOCATORIA_KEY, idConv);
-    // Ir al dashboard
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('dashboard').classList.add('active');
 }
@@ -24,7 +55,6 @@ function abrirSugerencia() {
         document.body.appendChild(modal);
     }
     modal.classList.add('active');
-    // Focus en el textarea
     setTimeout(() => {
         const ta = document.getElementById('textoSugerencia');
         if (ta) ta.focus();
@@ -36,6 +66,8 @@ function cerrarSugerencia() {
     if (modal) modal.classList.remove('active');
     const ta = document.getElementById('textoSugerencia');
     if (ta) ta.value = '';
+    const counter = document.getElementById('sugerenciaCounter');
+    if (counter) counter.textContent = '0';
 }
 
 function crearModalSugerencia() {
@@ -67,7 +99,6 @@ function crearModalSugerencia() {
         </div>
     `;
     
-    // Listener del contador
     setTimeout(() => {
         const ta = div.querySelector('#textoSugerencia');
         const counter = div.querySelector('#sugerenciaCounter');
