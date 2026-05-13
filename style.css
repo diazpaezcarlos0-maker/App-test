@@ -2860,3 +2860,217 @@ body {
         font-size: 3em;
     }
 }
+/* ============================================
+   SIMULACRO SEMANAL — Tarjeta destacada en dashboard
+   ============================================ */
+
+.menu-card.menu-card-destacada {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 50%, #2c7a7b 100%);
+    color: #fff;
+    position: relative;
+    grid-column: 1 / -1; /* ocupa toda la fila */
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    text-align: left;
+    overflow: hidden;
+}
+
+.menu-card.menu-card-destacada::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.menu-card.menu-card-destacada::before {
+    background: linear-gradient(90deg, #ffc400 0%, #2ecc71 100%);
+    opacity: 1;
+}
+
+.menu-card.menu-card-destacada .menu-icon {
+    font-size: 2.8em;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.menu-card.menu-card-destacada .menu-contenido {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.menu-card.menu-card-destacada h3 {
+    color: #fff;
+    margin: 0 0 6px;
+    font-size: 1.25em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.menu-card.menu-card-destacada p {
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    font-size: 0.92em;
+}
+
+.menu-card.menu-card-destacada:hover {
+    box-shadow: 0 14px 32px rgba(26, 54, 93, 0.3);
+}
+
+.badge-semanal {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 14px;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #ffc400;
+    color: #1a365d;
+}
+
+.badge-semanal.verde {
+    background: #2ecc71;
+    color: #fff;
+}
+
+.badge-semanal.amarillo {
+    background: #ffc400;
+    color: #1a365d;
+}
+
+.badge-semanal.gris {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+/* ============================================
+   PANTALLA RANKING SIMULACRO SEMANAL
+   ============================================ */
+
+.semana-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.mi-resultado-semanal {
+    background: linear-gradient(135deg, #fff 0%, #f5f7fb 100%);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 18px rgba(26, 54, 93, 0.08);
+    border-left: 5px solid #2ecc71;
+}
+
+.mi-resultado-semanal.pendiente {
+    border-left-color: #ffc400;
+    text-align: center;
+}
+
+.mi-resultado-titulo {
+    font-size: 0.85em;
+    color: #6b7785;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.mi-resultado-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.mi-stat {
+    text-align: center;
+    padding: 10px 4px;
+}
+
+.mi-stat-valor {
+    font-size: 1.7em;
+    font-weight: 700;
+    color: #1a365d;
+    line-height: 1.1;
+}
+
+.mi-stat-label {
+    font-size: 0.78em;
+    color: #6b7785;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Colores de nota */
+.nota-color-verde,
+.mi-stat-valor.verde,
+.verde {
+    color: #2ecc71 !important;
+}
+
+.nota-color-naranja {
+    color: #f39c12 !important;
+}
+
+.nota-color-rojo,
+.mi-stat-valor.rojo,
+.rojo {
+    color: #e74c3c !important;
+}
+
+/* ============================================
+   MÓVIL
+   ============================================ */
+@media (max-width: 600px) {
+    .menu-card.menu-card-destacada {
+        padding: 18px;
+        gap: 14px;
+    }
+    .menu-card.menu-card-destacada .menu-icon {
+        font-size: 2em;
+        width: 54px;
+        height: 54px;
+    }
+    .menu-card.menu-card-destacada h3 {
+        font-size: 1.05em;
+    }
+    .mi-resultado-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .mi-stat-valor {
+        font-size: 1.4em;
+    }
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+    .mi-resultado-semanal {
+        background: linear-gradient(135deg, #232a38 0%, #1c2230 100%);
+    }
+    .mi-stat-valor {
+        color: #e8edf5;
+    }
+    .mi-stat-label {
+        color: #a8b1be;
+    }
+}
