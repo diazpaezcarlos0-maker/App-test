@@ -117,6 +117,9 @@ function actualizarIconoTema(tema) {
 
 function cargarDashboard() {
     actualizarEstadisticasDashboard();
+    if (typeof actualizarBadgeSimulacroSemanal === 'function') {
+        actualizarBadgeSimulacroSemanal();
+    }
 }
 
 // ============================================
@@ -172,6 +175,9 @@ function volverDashboard() {
     detenerCronometro();
     mostrarPantalla('dashboard');
     actualizarEstadisticasDashboard();
+    if (typeof actualizarBadgeSimulacroSemanal === 'function') {
+        actualizarBadgeSimulacroSemanal();
+    }
 }
 
 function mostrarModoEstudio() {
@@ -337,7 +343,7 @@ function _arrancarSimulacro(cantidad, conTiempo) {
     
     if (conTiempo) {
         estadoApp.tiempoInicio = Date.now();
-        iniciarCronometro(cantidad * 60);
+        iniciarCronometro(cantidad * 78);
     }
     
     iniciarTest();
@@ -652,7 +658,8 @@ function renderizarMiniMapa() {
 function finalizarTest() {
     detenerCronometro();
     
-    if (estadoApp.modo === 'simulacro') {
+    if (estadoApp.modo === 'simulacro' || estadoApp.modo === 'simulacro_semanal') {
+        const modoGuardar = estadoApp.modo === 'simulacro_semanal' ? 'simulacro' : 'simulacro';
         estadoApp.preguntasActuales.forEach((pregunta, i) => {
             const respuesta = estadoApp.respuestas[i];
             if (respuesta) {
@@ -662,18 +669,31 @@ function finalizarTest() {
                     pregunta,
                     respuesta.seleccionada,
                     respuesta.esCorrecta,
-                    'simulacro'
+                    modoGuardar
                 ).then(ok => {
                     if (ok) actualizarEstadoFalladaEnMemoria(pregunta, respuesta.esCorrecta);
                 });
             }
         });
+        
+        // Si es semanal, guardar el intento en la tabla específica
+        if (estadoApp.modo === 'simulacro_semanal' && typeof guardarIntentoSimulacroSemanal === 'function') {
+            const correctas = estadoApp.respuestas.filter(r => r && r.esCorrecta).length;
+            const incorrectas = estadoApp.respuestas.filter(r => r && !r.esCorrecta).length;
+            const sinResponder = estadoApp.preguntasActuales.length - estadoApp.respuestas.filter(r => r).length;
+            const duracion = estadoApp.tiempoInicio ? Math.round((Date.now() - estadoApp.tiempoInicio) / 1000) : null;
+            guardarIntentoSimulacroSemanal(correctas, incorrectas, sinResponder, duracion);
+        }
     }
     
     mostrarResultados();
 }
 
 function abandonarTest() {
+    if (estadoApp.modo === 'simulacro_semanal') {
+        alert('No se puede abandonar el simulacro semanal a medias. Tienes que terminarlo.');
+        return;
+    }
     if (confirm('¿Seguro que quieres abandonar el test?')) {
         volverDashboard();
     }
@@ -689,15 +709,42 @@ function mostrarResultados() {
     const incorrectas = estadoApp.respuestas.filter(r => r && !r.esCorrecta).length;
     const sinResponder = estadoApp.preguntasActuales.length - estadoApp.respuestas.filter(r => r).length;
     const total = estadoApp.preguntasActuales.length;
-    const porcentaje = Math.round((correctas / total) * 100);
     
-    document.getElementById('puntuacionFinal').textContent = porcentaje + '%';
+    // En modos simulacro mostramos nota /10 con penalización 1/5
+    // En modo estudio seguimos mostrando porcentaje simple
+    const esSimulacro = estadoApp.modo === 'simulacro' || estadoApp.modo === 'simulacro_semanal';
+    
+    if (esSimulacro) {
+        const notaBruta = correctas - (incorrectas / 5);
+        const notaSobre10 = Math.max(0, (notaBruta / total) * 10);
+        document.getElementById('puntuacionFinal').textContent = notaSobre10.toFixed(2) + ' / 10';
+    } else {
+        const porcentaje = total > 0 ? Math.round((correctas / total) * 100) : 0;
+        document.getElementById('puntuacionFinal').textContent = porcentaje + '%';
+    }
     document.getElementById('totalCorrectas').textContent = correctas;
     document.getElementById('totalIncorrectas').textContent = incorrectas;
     document.getElementById('totalSinResponder').textContent = sinResponder;
     
     const detalleContainer = document.getElementById('detalleRespuestas');
-    detalleContainer.innerHTML = '<h3 style="margin: 2rem 0 1rem;">Detalle de respuestas</h3>';
+    detalleContainer.innerHTML = '';
+    
+    // Si es simulacro semanal añadimos botón para ir al ranking
+    if (estadoApp.modo === 'simulacro_semanal') {
+        const div = document.createElement('div');
+        div.style.cssText = 'text-align:center; margin: 16px 0;';
+        div.innerHTML = `
+            <button class="btn-primary" onclick="mostrarRankingSimulacroSemanal()">
+                🏆 Ver ranking de esta semana
+            </button>
+        `;
+        detalleContainer.appendChild(div);
+    }
+    
+    const headerDetalle = document.createElement('h3');
+    headerDetalle.style.cssText = 'margin: 2rem 0 1rem;';
+    headerDetalle.textContent = 'Detalle de respuestas';
+    detalleContainer.appendChild(headerDetalle);
     
     estadoApp.preguntasActuales.forEach((pregunta, i) => {
         const respuesta = estadoApp.respuestas[i];
