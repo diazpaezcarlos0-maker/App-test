@@ -521,10 +521,14 @@ function seleccionarOpcion(indiceOpcion) {
 function seleccionarOpcionSimulacro(indiceOpcion) {
     const pregunta = estadoApp.preguntasActuales[estadoApp.indicePregunta];
     const opciones = document.querySelectorAll('.opcion');
+    const ordenMezclado = estadoApp.opcionesMezcladas[estadoApp.indicePregunta];
     
-    opciones.forEach((op, i) => {
+    // ordenMezclado[posicionVisual] = indiceOriginal
+    // Buscamos la posición visual que corresponde al indiceOpcion (que es el índice ORIGINAL)
+    opciones.forEach((op, posicionVisual) => {
+        const indiceOriginal = ordenMezclado[posicionVisual];
         op.classList.remove('selected');
-        if (i === indiceOpcion) op.classList.add('selected');
+        if (indiceOriginal === indiceOpcion) op.classList.add('selected');
     });
     
     const esCorrecta = indiceOpcion === pregunta.correcta;
