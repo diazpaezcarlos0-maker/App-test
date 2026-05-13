@@ -30,6 +30,69 @@
 <body>
 <!-- PANTALLA DE LOGIN -->
 <div id="pantallaLogin" class="screen active">
+    <!-- ============================================
+    PANTALLA: ELEGIR CONVOCATORIA
+    Va justo después de la pantalla de login (#pantallaLogin)
+    y antes del dashboard (#dashboard)
+============================================ -->
+<div id="pantallaConvocatoria" class="screen">
+    <header class="dashboard-header">
+        <div class="header-content">
+            <h1>Elige tu oposición</h1>
+            <p class="subtitle">Selecciona la convocatoria que estás preparando</p>
+        </div>
+        <div class="header-acciones">
+            <button class="btn-logout" onclick="cerrarSesion()" title="Cerrar sesión">
+                🚪
+            </button>
+        </div>
+    </header>
+
+    <section class="convocatorias-container">
+        <!-- CONVOCATORIA ACTIVA -->
+        <button class="convocatoria-card activa" onclick="seleccionarConvocatoria('ayto-madrid')">
+            <div class="conv-icono">🏛️</div>
+            <div class="conv-info">
+                <h3>Administrativo Ayto. Madrid</h3>
+                <p>Promoción Interna C1 · 3.254 preguntas</p>
+            </div>
+            <div class="conv-badge">Disponible</div>
+        </button>
+
+        <!-- CONVOCATORIAS PRÓXIMAMENTE -->
+        <div class="conv-seccion-titulo">
+            <h3>Próximamente</h3>
+            <p>Estas oposiciones están en desarrollo</p>
+        </div>
+
+        <button class="convocatoria-card proximamente" disabled>
+            <div class="conv-icono">🇪🇸</div>
+            <div class="conv-info">
+                <h3>Administrativo General del Estado</h3>
+                <p>En desarrollo</p>
+            </div>
+            <div class="conv-badge gris">Próximamente</div>
+        </button>
+
+        <button class="convocatoria-card proximamente" disabled>
+            <div class="conv-icono">🏙️</div>
+            <div class="conv-info">
+                <h3>Administrativo Comunidad de Madrid</h3>
+                <p>En desarrollo</p>
+            </div>
+            <div class="conv-badge gris">Próximamente</div>
+        </button>
+
+        <!-- BOTÓN SUGERIR -->
+        <div class="sugerir-bloque">
+            <h3>¿No ves tu oposición?</h3>
+            <p>Cuéntanos cuál te gustaría y la añadiremos a la lista de prioridades.</p>
+            <button class="btn-sugerir" onclick="abrirSugerencia()">
+                💡 Sugerir una oposición
+            </button>
+        </div>
+    </section>
+</div>
     <div class="login-container">
         <div class="login-card">
             <h1>📚 OPOTEST</h1>
