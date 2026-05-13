@@ -3,15 +3,12 @@
 // ============================
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Detectar si volvemos de un pago de Stripe
+    // Detectar si volvemos de un pago (legado de Stripe, lo dejamos por si se reactiva)
     const params = new URLSearchParams(window.location.search);
     if (params.get('pago') === 'ok') {
-        // Esperar un momento para que el webhook haya procesado el pago
         setTimeout(() => {
             alert('¡Pago realizado correctamente! Bienvenido a Premium 🎉');
-            // Limpiar la URL
             window.history.replaceState({}, '', window.location.pathname);
-            // Recargar para refrescar el perfil
             window.location.reload();
         }, 2000);
         return;
@@ -19,13 +16,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert('Has cancelado el pago. Cuando quieras puedes volver a intentarlo.');
         window.history.replaceState({}, '', window.location.pathname);
     }
+    
     const { data: { session } } = await sb.auth.getSession();
     
     if (session) {
         currentUser = session.user;
         await cargarPerfil();
         await inicializarAppPostLogin();
-        mostrarDashboard();
+        irAPantallaInicialPostLogin();
     } else {
         mostrarLogin();
     }
@@ -35,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             currentUser = session.user;
             await cargarPerfil();
             await inicializarAppPostLogin();
-            mostrarDashboard();
+            irAPantallaInicialPostLogin();
         } else if (event === 'SIGNED_OUT') {
             currentUser = null;
             userProfile = null;
@@ -50,7 +48,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 redirectTo: window.location.origin + window.location.pathname
             }
         });
-        
         if (error) {
             alert('Error al iniciar sesión: ' + error.message);
         }
@@ -63,12 +60,10 @@ async function cargarPerfil() {
         .select('*')
         .eq('id', currentUser.id)
         .single();
-    
     if (error) {
         console.error('Error cargando perfil:', error);
         return;
     }
-    
     userProfile = data;
     console.log('Perfil cargado:', userProfile);
 }
@@ -83,6 +78,26 @@ function mostrarDashboard() {
     document.getElementById('dashboard').classList.add('active');
 }
 
+/**
+ * Decide a qué pantalla ir tras el login:
+ * - Si ya eligió convocatoria en una sesión anterior → directo al dashboard
+ * - Si no, mostramos la pantalla de elegir convocatoria
+ */
+function irAPantallaInicialPostLogin() {
+    const conv = localStorage.getItem('convocatoria_seleccionada');
+    if (conv) {
+        mostrarDashboard();
+    } else {
+        if (typeof mostrarPantallaConvocatoria === 'function') {
+            mostrarPantallaConvocatoria();
+        } else {
+            mostrarDashboard();
+        }
+    }
+}
+
 async function cerrarSesion() {
+    // Limpiar convocatoria al cerrar sesión para que la próxima vez la vuelva a elegir
+    localStorage.removeItem('convocatoria_seleccionada');
     await sb.auth.signOut();
 }
