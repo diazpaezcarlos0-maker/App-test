@@ -51,18 +51,14 @@
         </div>
     </div>
 </div>
-    <!-- ============================================
-    PANTALLA: ELEGIR CONVOCATORIA
-    Va justo después de la pantalla de login (#pantallaLogin)
-    y antes del dashboard (#dashboard)
-============================================ -->
+ <!-- PANTALLA: ELEGIR CONVOCATORIA -->
 <div id="pantallaConvocatoria" class="screen">
-    <header class="dashboard-header">
-        <div class="header-content">
-            <h1>Elige tu oposición</h1>
-            <p class="subtitle">Selecciona la convocatoria que estás preparando</p>
-        </div>
-        <div class="header-acciones">
+    <header class="conv-header">
+        <div class="conv-header-inner">
+            <div class="conv-header-titulo">
+                <h1>Elige tu oposición</h1>
+                <p>Selecciona la convocatoria que estás preparando</p>
+            </div>
             <button class="btn-logout" onclick="cerrarSesion()" title="Cerrar sesión">
                 🚪
             </button>
@@ -75,15 +71,17 @@
             <div class="conv-icono">🏛️</div>
             <div class="conv-info">
                 <h3>Administrativo Ayto. Madrid</h3>
-                <p>Promoción Interna C1 · 3.254 preguntas</p>
+                <p>Promoción Interna C1 · <span id="convAytoCount">…</span> preguntas</p>
             </div>
-            <div class="conv-badge">Disponible</div>
+            <div class="conv-meta">
+                <span class="conv-badge">Disponible</span>
+            </div>
+            <span class="conv-flecha">→</span>
         </button>
 
-        <!-- CONVOCATORIAS PRÓXIMAMENTE -->
+        <!-- Separador -->
         <div class="conv-seccion-titulo">
             <h3>Próximamente</h3>
-            <p>Estas oposiciones están en desarrollo</p>
         </div>
 
         <button class="convocatoria-card proximamente" disabled>
@@ -92,7 +90,9 @@
                 <h3>Administrativo General del Estado</h3>
                 <p>En desarrollo</p>
             </div>
-            <div class="conv-badge gris">Próximamente</div>
+            <div class="conv-meta">
+                <span class="conv-badge gris">Próximamente</span>
+            </div>
         </button>
 
         <button class="convocatoria-card proximamente" disabled>
@@ -101,15 +101,18 @@
                 <h3>Administrativo Comunidad de Madrid</h3>
                 <p>En desarrollo</p>
             </div>
-            <div class="conv-badge gris">Próximamente</div>
+            <div class="conv-meta">
+                <span class="conv-badge gris">Próximamente</span>
+            </div>
         </button>
 
-        <!-- BOTÓN SUGERIR -->
+        <!-- Bloque Sugerir -->
         <div class="sugerir-bloque">
+            <div class="sugerir-icon">💡</div>
             <h3>¿No ves tu oposición?</h3>
             <p>Cuéntanos cuál te gustaría y la añadiremos a la lista de prioridades.</p>
             <button class="btn-sugerir" onclick="abrirSugerencia()">
-                💡 Sugerir una oposición
+                Sugerir una oposición
             </button>
         </div>
     </section>
