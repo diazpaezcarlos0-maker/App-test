@@ -277,12 +277,28 @@
                     <li>✓ Calificación al finalizar</li>
                 </ul>
             </div>
-
+<div class="config-section">
+    <h3>Temas del simulacro</h3>
+    <p style="margin: -8px 0 14px; color: #6b7785; font-size: 0.9em;">
+        Por defecto entran todos. Deselecciona los que no quieras incluir.
+    </p>
+    
+    <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+        <button class="btn-secondary" onclick="seleccionarTodosSimulacro(true)" style="padding: 6px 14px; font-size: 0.88em;">
+            ✓ Todos
+        </button>
+        <button class="btn-secondary" onclick="seleccionarTodosSimulacro(false)" style="padding: 6px 14px; font-size: 0.88em;">
+            ✗ Ninguno
+        </button>
+    </div>
+    
+    <div class="temas-grid" id="temasSeleccionSimulacro"></div>
+</div>
             <div class="config-section">
                 <h3>Configuración del simulacro</h3>
                 <label class="checkbox-label">
                     <input type="checkbox" id="conTiempo">
-                    <span>Activar cronómetro (1 minuto por pregunta)</span>
+                    <span>Activar cronómetro (78 segundos por pregunta)</span>
                 </label>
                 
                 <div class="cantidad-selector">
