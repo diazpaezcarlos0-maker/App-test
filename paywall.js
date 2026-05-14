@@ -1,11 +1,17 @@
 // ============================================
-// PAYWALL — Límite diario de 20 preguntas para usuarios free
+// PAYWALL — MODO LANZAMIENTO
+// Sin límite diario para usuarios free durante el lanzamiento.
+// Para volver al límite de 20/día:
+//   1. Cambiar LIMITE_DIARIO_FREE a 20
+//   2. Cambiar MODO_LANZAMIENTO a false
+//   3. Restaurar la policy en Supabase (ver instrucciones en el chat)
 // ============================================
- 
+
+const MODO_LANZAMIENTO = true; // ← cambiar a false cuando se acabe el lanzamiento
 const LIMITE_DIARIO_FREE = 20;
 const BIZUM_NUMERO = '644607554';
 const PRECIO_PREMIUM = '5€/mes';
- 
+
 async function preguntasRespondidasHoy() {
     if (!currentUser) return 0;
     const hoy = new Date();
@@ -21,15 +27,20 @@ async function preguntasRespondidasHoy() {
     }
     return count || 0;
 }
- 
+
 async function preguntasRestantesHoy() {
+    // En modo lanzamiento todos tienen acceso ilimitado
+    if (MODO_LANZAMIENTO) return Infinity;
     if (!userProfile) return 0;
     if (userProfile.subscription_status === 'premium') return Infinity;
     const respondidas = await preguntasRespondidasHoy();
     return Math.max(0, LIMITE_DIARIO_FREE - respondidas);
 }
- 
+
 async function comprobarLimiteAntesDeTest(cantidadPedida) {
+    // En modo lanzamiento no comprobamos nada
+    if (MODO_LANZAMIENTO) return cantidadPedida;
+    
     const restantes = await preguntasRestantesHoy();
     if (restantes === Infinity) return cantidadPedida;
     if (restantes === 0) {
@@ -51,7 +62,7 @@ async function comprobarLimiteAntesDeTest(cantidadPedida) {
     }
     return cantidadPedida;
 }
- 
+
 async function guardarRespuestaEnSupabase(pregunta, indiceSeleccionado, esCorrecta, modo) {
     if (!currentUser) return true;
     if (!pregunta.dbId) {
@@ -68,25 +79,27 @@ async function guardarRespuestaEnSupabase(pregunta, indiceSeleccionado, esCorrec
     if (error) {
         console.error('Error guardando respuesta:', error);
         if (error.message && error.message.toLowerCase().includes('row-level security')) {
-            mostrarMuroPago('Has alcanzado las 20 preguntas gratis de hoy.');
+            if (!MODO_LANZAMIENTO) {
+                mostrarMuroPago('Has alcanzado las 20 preguntas gratis de hoy.');
+            }
             return false;
         }
         return false;
     }
     return true;
 }
- 
+
 function mostrarMuroPago(motivo) {
     let muro = document.getElementById('muroPago');
     if (!muro) {
         muro = crearMuroPago();
         document.body.appendChild(muro);
     }
-    document.getElementById('muroMotivo').textContent = motivo || 'Límite diario alcanzado';
+    document.getElementById('muroMotivo').textContent = motivo || 'Apoya el proyecto';
     muro.classList.add('active');
     if (typeof detenerCronometro === 'function') detenerCronometro();
 }
- 
+
 function cerrarMuroPago() {
     const muro = document.getElementById('muroPago');
     if (muro) muro.classList.remove('active');
@@ -94,7 +107,7 @@ function cerrarMuroPago() {
     if (bizumModal) bizumModal.classList.remove('active');
     if (typeof volverDashboard === 'function') volverDashboard();
 }
- 
+
 function crearMuroPago() {
     const div = document.createElement('div');
     div.id = 'muroPago';
@@ -103,25 +116,21 @@ function crearMuroPago() {
         <div class="muro-overlay" onclick="cerrarMuroPago()"></div>
         <div class="muro-card">
             <div class="muro-icono">💜</div>
-            <h2>Apoya el proyecto y sigue practicando</h2>
-            <p id="muroMotivo">Ya has hecho tus 20 preguntas gratis de hoy.</p>
+            <h2>Apoya el proyecto</h2>
+            <p id="muroMotivo">Ayúdanos a seguir mejorando OPOTEST.</p>
             
             <div class="muro-features">
                 <div class="muro-feature">
                     <span class="check">✓</span>
-                    <span>Acceso ilimitado a las 3.254 preguntas</span>
-                </div>
-                <div class="muro-feature">
-                    <span class="check">✓</span>
-                    <span>Sin límite diario</span>
-                </div>
-                <div class="muro-feature">
-                    <span class="check">✓</span>
-                    <span>Estadísticas comparativas con otros opositores</span>
-                </div>
-                <div class="muro-feature">
-                    <span class="check">✓</span>
                     <span>Apoyas el desarrollo del proyecto</span>
+                </div>
+                <div class="muro-feature">
+                    <span class="check">✓</span>
+                    <span>Acceso al Simulacro Semanal competitivo</span>
+                </div>
+                <div class="muro-feature">
+                    <span class="check">✓</span>
+                    <span>Permite añadir nuevas oposiciones</span>
                 </div>
             </div>
             
@@ -131,13 +140,11 @@ function crearMuroPago() {
             <button class="btn-secundario" onclick="cerrarMuroPago()">
                 Ahora no, gracias
             </button>
-            
-            <p class="muro-info">Vuelve mañana para 20 preguntas gratis más</p>
         </div>
     `;
     return div;
 }
- 
+
 function iniciarSuscripcion() {
     if (!currentUser) {
         alert('Debes iniciar sesión primero.');
@@ -149,7 +156,6 @@ function iniciarSuscripcion() {
         modal = crearModalBizum();
         document.body.appendChild(modal);
     } else {
-        // Actualizar email por si cambió
         const emailEl = modal.querySelector('.bizum-email');
         if (emailEl) emailEl.textContent = currentUser.email || 'tu email';
     }
@@ -159,7 +165,7 @@ function iniciarSuscripcion() {
     
     modal.classList.add('active');
 }
- 
+
 function crearModalBizum() {
     const div = document.createElement('div');
     div.id = 'modalBizum';
@@ -196,12 +202,12 @@ function crearModalBizum() {
     `;
     return div;
 }
- 
+
 function cerrarModalBizum() {
     const modal = document.getElementById('modalBizum');
     if (modal) modal.classList.remove('active');
 }
- 
+
 function copiarBizum() {
     navigator.clipboard.writeText(BIZUM_NUMERO).then(() => {
         const btn = document.querySelector('#modalBizum .btn-copiar');
