@@ -406,8 +406,12 @@ function _arrancarSimulacro(cantidad, conTiempo, temasSeleccionados) {
 }
 
 function obtenerPreguntasProporcionadas(cantidadTotal, temasFiltro) {
-    const temasUsar = temasFiltro && temasFiltro.length
-        ? temas.filter(t => temasFiltro.includes(t.id))
+    // Normalizar a strings para evitar mismatch número/string
+    const filtroNorm = (temasFiltro && temasFiltro.length)
+        ? temasFiltro.map(String)
+        : null;
+    const temasUsar = filtroNorm
+        ? temas.filter(t => filtroNorm.includes(String(t.id)))
         : temas;
     const totalPreguntas = temasUsar.reduce((sum, t) => sum + t.preguntas.length, 0);
     let preguntasSeleccionadas = [];
@@ -453,6 +457,17 @@ function inicializarOpcionesMezcladas() {
 // TEST
 // ============================================
 function iniciarTest() {
+    if (!estadoApp.preguntasActuales || estadoApp.preguntasActuales.length === 0) {
+        console.error('iniciarTest: preguntasActuales está vacío', {
+            modo: estadoApp.modo,
+            temasActivos: estadoApp.temasActivos,
+            cantidadTemas: temas?.length
+        });
+        alert('No se han podido cargar las preguntas. Recarga la página (Ctrl+Shift+R) y vuelve a intentarlo.');
+        volverDashboard();
+        return;
+    }
+    
     mostrarPantalla('pantallaTest');
     document.getElementById('infoModo').textContent = 
         estadoApp.modo === 'estudio' ? 'Modo Estudio' : 'Modo Simulacro';
