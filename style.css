@@ -3276,193 +3276,143 @@ body {
     }
 }
 /* ============================================
-   PARCHE DEFINITIVO RANKING — Contraste forzado
-   No depende del modo del sistema, fuerza contraste
+   PARCHE DEFINITIVO RANKING — Versión 3
+   Fuerza contraste en TODOS los rankings de la app
    ============================================ */
 
-/* Filas del ranking — sin importar de qué clase vengan */
-.ranking-fila,
-.ranking-header-fila,
+/* Cualquier fila de ranking, no importa la clase exacta */
+#contenidoRanking *,
+#pantallaRanking *,
+#contenidoRankingSemanal *,
+#pantallaRankingSemanal * {
+    color: #2d3748;
+}
+
+/* Filas: nombres en gris oscuro fuerte */
 #contenidoRanking .ranking-fila,
-#contenidoRankingSemanal .ranking-fila,
-.ranking-tabla > div {
-    background: #ffffff !important;
-    color: #1a365d !important;
-    border-bottom: 1px solid #e8edf5;
-    padding: 10px 14px;
-    display: grid;
-    grid-template-columns: 50px 1fr 80px 90px;
-    gap: 10px;
-    align-items: center;
-}
-
-.ranking-header-fila {
-    background: #f0f4fa !important;
-    color: #6b7785 !important;
-    font-size: 0.8em;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-radius: 12px 12px 0 0;
-}
-
-.ranking-fila.es-yo {
-    background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(46, 204, 113, 0.03) 100%) !important;
-    color: #1e7e3b !important;
-    font-weight: 600;
-}
-
-/* Todos los hijos heredan el color */
-.ranking-fila > *,
-.ranking-fila span,
-.ranking-header-fila > *,
-.ranking-header-fila span,
-.ranking-fila small {
-    color: inherit !important;
-    background: transparent !important;
-}
-
-.ranking-fila .r-pos {
-    font-weight: 700;
-    text-align: center;
-    color: #1a365d !important;
-}
-
-.ranking-fila.es-yo .r-pos {
-    color: #1e7e3b !important;
-}
-
-.ranking-fila .r-nombre {
+#contenidoRanking .ranking-fila *,
+#contenidoRanking [class*="ranking"] td,
+#contenidoRanking [class*="ranking"] span,
+#contenidoRanking [class*="ranking"] div,
+#pantallaRankingSemanal .ranking-fila,
+#pantallaRankingSemanal .ranking-fila * {
     color: #2d3748 !important;
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
-.ranking-fila.es-yo .r-nombre {
+/* Excepción: la fila propia (es-yo / actual / mi-fila / etc) en verde */
+#contenidoRanking .es-yo,
+#contenidoRanking .es-yo *,
+#contenidoRanking .actual,
+#contenidoRanking .actual *,
+#contenidoRanking .mi-fila,
+#contenidoRanking .mi-fila *,
+#pantallaRankingSemanal .es-yo,
+#pantallaRankingSemanal .es-yo * {
     color: #1e7e3b !important;
+    font-weight: 600 !important;
 }
 
-.ranking-fila .r-acert {
-    font-weight: 700;
-    text-align: center;
-}
-
-.ranking-fila .r-pct {
+/* Cabecera de tabla con "#  USUARIO  ACERTADAS  % ACIERTO" */
+#contenidoRanking .ranking-header-fila,
+#contenidoRanking .ranking-header-fila *,
+#contenidoRanking thead,
+#contenidoRanking thead *,
+#contenidoRanking .header-ranking,
+#contenidoRanking .header-ranking * {
     color: #6b7785 !important;
-    font-size: 0.9em;
-    text-align: right;
+    font-size: 0.82em !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    background: #f0f4fa !important;
 }
 
-/* Contenedor de la tabla del ranking */
-.ranking-tabla {
+/* Texto secundario en gris suave pero LEGIBLE */
+#contenidoRanking small,
+#pantallaRankingSemanal small {
+    color: #6b7785 !important;
+}
+
+/* Tabs Hoy / Semana / Mes / Total */
+.tab-periodo,
+.ranking-tabs button {
     background: #ffffff !important;
+    color: #4a5568 !important;
+    border: 1.5px solid #e1e5eb !important;
+    padding: 8px 18px !important;
+    border-radius: 20px !important;
+    cursor: pointer !important;
+    font-size: 0.9em !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    transition: all 0.15s !important;
+}
+
+.tab-periodo:hover,
+.ranking-tabs button:hover {
+    background: #f5f7fb !important;
+    border-color: #1a365d !important;
+    color: #1a365d !important;
+}
+
+.tab-periodo.activa,
+.ranking-tabs button.activa,
+.tab-periodo.active,
+.ranking-tabs button.active {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%) !important;
+    color: #ffffff !important;
+    border-color: #1a365d !important;
+}
+
+/* Fondo de la tabla del ranking en blanco SIEMPRE */
+.ranking-tabla,
+#contenidoRanking .ranking-tabla,
+.ranking-container,
+#contenidoRanking > div {
+    background: #ffffff;
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 4px 18px rgba(26, 54, 93, 0.08);
-    margin-top: 12px;
 }
 
-.ranking-tabla .ranking-fila:last-child {
-    border-bottom: none;
-}
-
-/* Colores nota dentro de filas */
-.ranking-fila .nota-color-verde,
-.ranking-fila .verde {
-    color: #2ecc71 !important;
-    font-weight: 700;
-}
-
-.ranking-fila .nota-color-naranja {
-    color: #f39c12 !important;
-    font-weight: 700;
-}
-
-.ranking-fila .nota-color-rojo,
-.ranking-fila .rojo {
-    color: #e74c3c !important;
-    font-weight: 700;
-}
-
-/* Cuando el usuario es "yo", la nota verde sigue siendo verde */
-.ranking-fila.es-yo .verde { color: #27ae60 !important; }
-
-/* Tabs del ranking */
-.ranking-tabs,
-#pantallaRanking .ranking-tabs {
-    display: flex;
-    gap: 8px;
-    padding: 14px 20px;
-    background: transparent;
-    overflow-x: auto;
-}
-
-.tab-periodo {
-    background: #ffffff !important;
-    color: #6b7785 !important;
-    border: 1.5px solid #e1e5eb;
-    padding: 8px 18px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9em;
-    font-weight: 500;
-    transition: all 0.15s;
-    white-space: nowrap;
-}
-
-.tab-periodo:hover {
-    background: #f5f7fb !important;
-    border-color: #1a365d;
-}
-
-.tab-periodo.activa {
-    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%) !important;
-    color: #ffffff !important;
-    border-color: #1a365d;
-}
-
-/* Móvil */
-@media (max-width: 600px) {
-    .ranking-fila,
-    .ranking-header-fila {
-        grid-template-columns: 40px 1fr 60px 70px;
-        gap: 6px;
-        padding: 10px 8px;
-        font-size: 0.88em;
-    }
-    .ranking-fila .r-nombre {
-        font-size: 0.92em;
-    }
-}
-
-/* Modo oscuro (mantener bonito también ahí) */
+/* Modo oscuro: textos claros */
 @media (prefers-color-scheme: dark) {
-    .ranking-fila,
-    .ranking-tabla,
-    .ranking-tabla > div {
-        background: #232a38 !important;
-        color: #e8edf5 !important;
-        border-bottom-color: #313a4f;
+    #contenidoRanking *,
+    #pantallaRanking *,
+    #contenidoRankingSemanal *,
+    #pantallaRankingSemanal * {
+        color: #d8dde8;
     }
-    .ranking-header-fila {
-        background: #1c2230 !important;
-        color: #a8b1be !important;
-    }
-    .ranking-fila .r-nombre {
+    #contenidoRanking .ranking-fila,
+    #contenidoRanking .ranking-fila *,
+    #contenidoRanking [class*="ranking"] span,
+    #pantallaRankingSemanal .ranking-fila,
+    #pantallaRankingSemanal .ranking-fila * {
         color: #d8dde8 !important;
     }
-    .ranking-fila.es-yo {
-        background: linear-gradient(135deg, rgba(46, 204, 113, 0.18) 0%, rgba(46, 204, 113, 0.05) 100%) !important;
-        color: #5fd99b !important;
+    #contenidoRanking .ranking-header-fila,
+    #contenidoRanking .ranking-header-fila *,
+    #contenidoRanking thead,
+    #contenidoRanking thead * {
+        color: #a8b1be !important;
+        background: #1c2230 !important;
     }
-    .tab-periodo {
+    .ranking-tabla,
+    #contenidoRanking .ranking-tabla,
+    .ranking-container,
+    #contenidoRanking > div {
+        background: #232a38;
+    }
+    .tab-periodo,
+    .ranking-tabs button {
         background: #2a3142 !important;
         color: #a8b1be !important;
-        border-color: #3a4154;
+        border-color: #3a4154 !important;
     }
-    .tab-periodo.activa {
-        color: #ffffff !important;
+    #contenidoRanking .es-yo,
+    #contenidoRanking .es-yo *,
+    #pantallaRankingSemanal .es-yo,
+    #pantallaRankingSemanal .es-yo * {
+        color: #5fd99b !important;
     }
 }
