@@ -540,8 +540,15 @@ function mostrarPregunta() {
         document.getElementById('explicacionContainer').classList.remove('oculto');
         // También mostrar la stat global si ya estaba respondida
         mostrarStatGlobalDePregunta(pregunta);
+        // Renderizar comentarios (solo en modo estudio, después de responder)
+        if (typeof renderizarSeccionComentarios === 'function') {
+            renderizarSeccionComentarios(pregunta);
+        }
     } else {
         document.getElementById('explicacionContainer').classList.add('oculto');
+        // Ocultar comentarios si todavía no se ha respondido o si es simulacro
+        const secCom = document.getElementById('seccionComentarios');
+        if (secCom) secCom.style.display = 'none';
     }
     
     actualizarBotonGuardar();
@@ -639,6 +646,11 @@ function mostrarResultadoPregunta() {
     
     // Mostrar % global de acierto (asíncrono, aparece cuando llega)
     mostrarStatGlobalDePregunta(pregunta);
+    
+    // Mostrar comentarios solo en modo estudio
+    if (estadoApp.modo === 'estudio' && typeof renderizarSeccionComentarios === 'function') {
+        renderizarSeccionComentarios(pregunta);
+    }
     
     renderizarMiniMapa();
 }
