@@ -3074,3 +3074,204 @@ body {
         color: #a8b1be;
     }
 }
+/* ============================================
+   PARCHE CONTRASTE — Modo día
+   Fuerza colores oscuros legibles en contenido sobre fondo claro
+   ============================================ */
+
+/* Aplica solo cuando el navegador NO está en modo oscuro */
+@media (prefers-color-scheme: light), (prefers-color-scheme: no-preference) {
+
+    /* RANKING */
+    #pantallaRanking,
+    #pantallaRankingSemanal,
+    #contenidoRanking,
+    #contenidoRankingSemanal {
+        color: #1a365d;
+    }
+    
+    #pantallaRanking *,
+    #pantallaRankingSemanal *,
+    #contenidoRanking *,
+    #contenidoRankingSemanal * {
+        color: inherit;
+    }
+    
+    /* Pero forzamos negros en lo importante del ranking */
+    .ranking-fila,
+    .ranking-tabla,
+    .ranking-header-fila,
+    .tema-stat-card,
+    .pregunta-guardada,
+    .config-section,
+    .info-card,
+    .stat-card,
+    .menu-card,
+    .pregunta-container,
+    .resultado-general,
+    .mi-resultado-semanal,
+    .resultados-container,
+    .acciones-resultado,
+    .detalle-item {
+        color: #2d3748 !important;
+    }
+    
+    .ranking-fila .r-pos,
+    .ranking-fila .r-nombre,
+    .ranking-fila .r-acert,
+    .ranking-fila .r-pct,
+    .ranking-header-fila span {
+        color: #2d3748;
+    }
+    
+    /* Los títulos en azul oscuro */
+    .ranking-fila .r-nombre,
+    .config-section h3,
+    .info-card h3,
+    .menu-card h3,
+    .stat-value,
+    .tema-stat-nombre,
+    .tema-stat-porcentaje,
+    .pregunta-texto,
+    .mi-stat-valor,
+    .resultado-general,
+    h1, h2, h3, h4 {
+        color: #1a365d !important;
+    }
+    
+    /* Texto secundario en gris medio */
+    .menu-card p,
+    .stat-label,
+    .info-card li,
+    .tema-stat-detalles,
+    .pregunta-numero,
+    .mi-stat-label,
+    .detalle-label,
+    .mi-resultado-titulo,
+    small {
+        color: #6b7785 !important;
+    }
+    
+    /* Asegurar que el fondo de las tarjetas blancas sea realmente blanco */
+    .ranking-fila,
+    .ranking-header-fila,
+    .tema-stat-card,
+    .pregunta-guardada,
+    .config-section,
+    .info-card,
+    .stat-card,
+    .menu-card,
+    .pregunta-container,
+    .resultado-general {
+        background: #ffffff;
+    }
+    
+    /* Pero algunos elementos mantienen su fondo especial */
+    .menu-card.menu-card-destacada {
+        background: linear-gradient(135deg, #1a365d 0%, #2c5282 50%, #2c7a7b 100%) !important;
+    }
+    
+    .menu-card.menu-card-destacada *,
+    .menu-card.menu-card-destacada h3,
+    .menu-card.menu-card-destacada p {
+        color: #ffffff !important;
+    }
+    
+    /* Fondos especiales */
+    .opcion {
+        background: #ffffff;
+    }
+    
+    .opcion.correcta {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.15) 0%, rgba(46, 204, 113, 0.05) 100%);
+    }
+    
+    .opcion.incorrecta {
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.15) 0%, rgba(231, 76, 60, 0.05) 100%);
+    }
+    
+    /* Selección de opción en simulacro: marcado visible */
+    .opcion.selected {
+        background: linear-gradient(135deg, rgba(26, 54, 93, 0.12) 0%, rgba(26, 54, 93, 0.04) 100%) !important;
+        border-color: #1a365d !important;
+        color: #1a365d !important;
+        font-weight: 500;
+    }
+    
+    /* Letras de opción */
+    .opcion-letra {
+        color: #1a365d;
+        font-weight: 700;
+    }
+    
+    .opcion-texto {
+        color: #2d3748;
+    }
+    
+    /* Explicación */
+    .explicacion-content {
+        color: #4a3c00 !important;
+    }
+    
+    /* Tabs del ranking */
+    .tab-periodo {
+        color: #6b7785;
+    }
+    
+    .tab-periodo.activa {
+        color: #1a365d;
+        font-weight: 600;
+    }
+    
+    /* Headers azules (mantenerlos blancos) */
+    .dashboard-header *,
+    .conv-header *,
+    .screen-header *,
+    .test-header * {
+        color: #ffffff !important;
+    }
+    
+    .dashboard-header small,
+    .conv-header small,
+    .screen-header small {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+    
+    /* Inputs */
+    input[type="number"],
+    input[type="text"],
+    textarea {
+        color: #1a365d !important;
+        background: #ffffff !important;
+    }
+    
+    /* Labels */
+    .checkbox-label,
+    .temas-grid label {
+        color: #2d3748 !important;
+    }
+    
+    /* Botones */
+    .btn-back,
+    .btn-editar-nombre {
+        color: #ffffff !important;
+    }
+    
+    .btn-secondary,
+    .btn-nav {
+        color: #1a365d !important;
+    }
+    
+    /* Mensajes vacíos */
+    .mensaje-vacio,
+    .mensaje-vacio p {
+        color: #6b7785 !important;
+    }
+    
+    .ranking-vacio,
+    .ranking-loading {
+        color: #6b7785 !important;
+        text-align: center;
+        padding: 40px 20px;
+    }
+}
