@@ -187,6 +187,50 @@ function mostrarModoEstudio() {
 
 function mostrarModoSimulacro() {
     mostrarPantalla('modoSimulacro');
+    cargarTemasSeleccionablesSimulacro();
+}
+
+function cargarTemasSeleccionablesSimulacro() {
+    const container = document.getElementById('temasSeleccionSimulacro');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    temas.forEach(tema => {
+        const div = document.createElement('div');
+        div.className = 'tema-checkbox selected'; // por defecto todos seleccionados
+        
+        const icono = tema.icono || '📚';
+        
+        div.innerHTML = `
+            <input type="checkbox" id="sim-tema-${tema.id}" value="${tema.id}" checked>
+            <div class="tema-info">
+                <div class="tema-nombre"><span style="font-size: 1.3em; margin-right: 0.5rem;">${icono}</span>${tema.nombre}</div>
+                <div class="tema-stats">${tema.preguntas.length} preguntas</div>
+            </div>
+        `;
+        
+        const checkbox = div.querySelector('input');
+        checkbox.addEventListener('change', (e) => {
+            if (e.target.checked) div.classList.add('selected');
+            else div.classList.remove('selected');
+        });
+        
+        div.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT') {
+                checkbox.checked = !checkbox.checked;
+                checkbox.dispatchEvent(new Event('change'));
+            }
+        });
+        
+        container.appendChild(div);
+    });
+}
+
+function seleccionarTodosSimulacro(seleccionar) {
+    document.querySelectorAll('#temasSeleccionSimulacro input[type="checkbox"]').forEach(cb => {
+        cb.checked = seleccionar;
+        cb.dispatchEvent(new Event('change'));
+    });
 }
 
 function mostrarPreguntasGuardadas() {
@@ -327,19 +371,31 @@ function iniciarSimulacro() {
     const cantidadPedida = parseInt(document.getElementById('cantidadSimulacro').value);
     const conTiempo = document.getElementById('conTiempo').checked;
     
+    // Leer temas seleccionados
+    const temasSeleccionados = Array.from(
+        document.querySelectorAll('#temasSeleccionSimulacro input:checked')
+    ).map(cb => cb.value);
+    
+    if (temasSeleccionados.length === 0) {
+        alert('Selecciona al menos un tema para el simulacro.');
+        return;
+    }
+    
     comprobarLimiteAntesDeTest(cantidadPedida).then(cantidad => {
         if (cantidad === 0) return;
-        _arrancarSimulacro(cantidad, conTiempo);
+        _arrancarSimulacro(cantidad, conTiempo, temasSeleccionados);
     });
 }
 
-function _arrancarSimulacro(cantidad, conTiempo) {
+function _arrancarSimulacro(cantidad, conTiempo, temasSeleccionados) {
     estadoApp.modo = 'simulacro';
-    estadoApp.temasActivos = temas.map(t => t.id);
+    estadoApp.temasActivos = temasSeleccionados && temasSeleccionados.length
+        ? temasSeleccionados
+        : temas.map(t => t.id);
     estadoApp.indicePregunta = 0;
     estadoApp.respuestas = [];
     
-    estadoApp.preguntasActuales = obtenerPreguntasProporcionadas(cantidad);
+    estadoApp.preguntasActuales = obtenerPreguntasProporcionadas(cantidad, estadoApp.temasActivos);
     
     if (conTiempo) {
         estadoApp.tiempoInicio = Date.now();
@@ -349,11 +405,14 @@ function _arrancarSimulacro(cantidad, conTiempo) {
     iniciarTest();
 }
 
-function obtenerPreguntasProporcionadas(cantidadTotal) {
-    const totalPreguntas = temas.reduce((sum, t) => sum + t.preguntas.length, 0);
+function obtenerPreguntasProporcionadas(cantidadTotal, temasFiltro) {
+    const temasUsar = temasFiltro && temasFiltro.length
+        ? temas.filter(t => temasFiltro.includes(t.id))
+        : temas;
+    const totalPreguntas = temasUsar.reduce((sum, t) => sum + t.preguntas.length, 0);
     let preguntasSeleccionadas = [];
     
-    temas.forEach(tema => {
+    temasUsar.forEach(tema => {
         const proporcion = tema.preguntas.length / totalPreguntas;
         const cantidadTema = Math.max(1, Math.round(cantidadTotal * proporcion));
         
