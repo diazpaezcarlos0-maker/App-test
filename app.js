@@ -173,6 +173,7 @@ function mostrarPantalla(idPantalla) {
 
 function volverDashboard() {
     detenerCronometro();
+    if (typeof ocultarContextoSupuesto === 'function') ocultarContextoSupuesto();
     mostrarPantalla('dashboard');
     actualizarEstadisticasDashboard();
     if (typeof actualizarBadgeSimulacroSemanal === 'function') {
@@ -469,8 +470,13 @@ function iniciarTest() {
     }
     
     mostrarPantalla('pantallaTest');
-    document.getElementById('infoModo').textContent = 
-        estadoApp.modo === 'estudio' ? 'Modo Estudio' : 'Modo Simulacro';
+    const nombresModo = {
+        'estudio': 'Modo Estudio',
+        'simulacro': 'Modo Simulacro',
+        'simulacro_semanal': 'Simulacro Semanal',
+        'supuesto': 'Supuesto Práctico'
+    };
+    document.getElementById('infoModo').textContent = nombresModo[estadoApp.modo] || 'Test';
     
     // Inicializar opciones mezcladas para todas las preguntas
     inicializarOpcionesMezcladas();
@@ -748,7 +754,7 @@ function renderizarMiniMapa() {
 function finalizarTest() {
     detenerCronometro();
     
-    if (estadoApp.modo === 'simulacro' || estadoApp.modo === 'simulacro_semanal') {
+    if (estadoApp.modo === 'simulacro' || estadoApp.modo === 'simulacro_semanal' || estadoApp.modo === 'supuesto') {
         const modoGuardar = estadoApp.modo === 'simulacro_semanal' ? 'simulacro' : 'simulacro';
         estadoApp.preguntasActuales.forEach((pregunta, i) => {
             const respuesta = estadoApp.respuestas[i];
@@ -802,7 +808,7 @@ function mostrarResultados() {
     
     // En modos simulacro mostramos nota /10 con penalización 1/5
     // En modo estudio seguimos mostrando porcentaje simple
-    const esSimulacro = estadoApp.modo === 'simulacro' || estadoApp.modo === 'simulacro_semanal';
+    const esSimulacro = estadoApp.modo === 'simulacro' || estadoApp.modo === 'simulacro_semanal' || estadoApp.modo === 'supuesto';
     
     if (esSimulacro) {
         const notaBruta = correctas - (incorrectas / 5);
