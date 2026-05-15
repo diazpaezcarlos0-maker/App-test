@@ -22,13 +22,11 @@ function actualizarCandadoSupuestos() {
     if (!card) return;
     
     const esPremium = userProfile?.subscription_status === 'premium';
-    const modoLanzamiento = typeof MODO_LANZAMIENTO !== 'undefined' && MODO_LANZAMIENTO;
-    const acceso = esPremium || modoLanzamiento;
     
     const candado = card.querySelector('.candado-premium');
     const subtitulo = card.querySelector('.subtitulo-tipo');
     
-    if (acceso) {
+    if (esPremium) {
         card.classList.remove('bloqueado');
         if (candado) candado.style.display = 'none';
         if (subtitulo) subtitulo.textContent = 'Practica con casos reales del examen';
@@ -48,9 +46,8 @@ function elegirTipoEstudio(tipo) {
     
     if (tipo === 'supuestos') {
         const esPremium = userProfile?.subscription_status === 'premium';
-        const modoLanzamiento = typeof MODO_LANZAMIENTO !== 'undefined' && MODO_LANZAMIENTO;
         
-        if (!esPremium && !modoLanzamiento) {
+        if (!esPremium) {
             mostrarMuroPago('Los supuestos prácticos son exclusivos de Premium. Apoya el proyecto para acceder.');
             return;
         }
