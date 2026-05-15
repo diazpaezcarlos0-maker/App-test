@@ -3754,3 +3754,175 @@ body {
         padding: 3px 8px;
     }
 }
+/* ============================================
+   PARCHE MURO PAGO + MODAL BIZUM (contraste)
+   Fuerza colores oscuros legibles siempre
+   ============================================ */
+
+.muro-card,
+.muro-card *,
+.bizum-card,
+.bizum-card *,
+.sugerencia-card,
+.sugerencia-card *,
+.report-card,
+.report-card * {
+    color: #2d3748 !important;
+}
+
+.muro-card {
+    background: #ffffff !important;
+}
+
+.muro-card h2,
+.bizum-card h2,
+.sugerencia-card h2,
+.report-card h2 {
+    color: #1a365d !important;
+    font-weight: 700 !important;
+    margin: 8px 0 12px !important;
+}
+
+.muro-card p,
+.bizum-card p,
+.sugerencia-card p,
+.report-card p {
+    color: #4a5568 !important;
+}
+
+/* Features con check verde */
+.muro-features {
+    background: #f5f7fb !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    margin: 16px 0 !important;
+}
+
+.muro-feature {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 6px 0 !important;
+    color: #2d3748 !important;
+}
+
+.muro-feature span:not(.check) {
+    color: #2d3748 !important;
+}
+
+.check {
+    color: #2ecc71 !important;
+    font-weight: 700 !important;
+    flex-shrink: 0 !important;
+    font-size: 1.1em !important;
+}
+
+/* Botón principal */
+.btn-suscribirse {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 14px !important;
+    border-radius: 10px !important;
+    font-size: 1em !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    width: 100% !important;
+    margin-top: 8px !important;
+    box-shadow: 0 4px 12px rgba(26, 54, 93, 0.25) !important;
+    transition: all 0.15s !important;
+}
+
+.btn-suscribirse:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(26, 54, 93, 0.35) !important;
+}
+
+.btn-suscribirse:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* Botón secundario "Ahora no, gracias" */
+.btn-secundario {
+    background: #ffffff !important;
+    color: #1a365d !important;
+    border: 1.5px solid #e1e5eb !important;
+    padding: 12px !important;
+    border-radius: 10px !important;
+    cursor: pointer !important;
+    font-size: 0.95em !important;
+    font-weight: 500 !important;
+    width: 100% !important;
+    margin-top: 8px !important;
+    transition: all 0.15s !important;
+}
+
+.btn-secundario:hover {
+    background: #f5f7fb !important;
+    border-color: #1a365d !important;
+}
+
+.muro-info {
+    color: #8892a0 !important;
+    font-size: 0.85em !important;
+    text-align: center !important;
+    margin-top: 12px !important;
+}
+
+/* MODAL BIZUM */
+.bizum-numero-bloque {
+    background: linear-gradient(135deg, #6c2eb5 0%, #8b3dd6 100%) !important;
+}
+
+.bizum-numero-bloque,
+.bizum-numero-bloque * {
+    color: #ffffff !important;
+}
+
+.bizum-label {
+    opacity: 0.9 !important;
+}
+
+.btn-copiar {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    color: #ffffff !important;
+}
+
+.bizum-instrucciones {
+    background: #fff7e0 !important;
+    border-left: 3px solid #ffc400 !important;
+}
+
+.bizum-instrucciones,
+.bizum-instrucciones * {
+    color: #4a3c00 !important;
+}
+
+.bizum-email {
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    color: #1a365d !important;
+    font-weight: 600 !important;
+}
+
+.paso-num {
+    background: #6c2eb5 !important;
+    color: #ffffff !important;
+}
+
+/* MODO OSCURO — mantener el muro con fondo claro porque queda mejor */
+@media (prefers-color-scheme: dark) {
+    .muro-card,
+    .bizum-card,
+    .sugerencia-card,
+    .report-card {
+        background: #ffffff !important;
+    }
+    /* Pero el overlay sí sigue siendo oscuro */
+    .muro-overlay {
+        background: rgba(0, 0, 0, 0.7) !important;
+    }
+}
