@@ -224,7 +224,51 @@
             </button>
         </section>
     </div>
+<!-- PANTALLA: SELECCIÓN DE TIPO DE ESTUDIO (Tests vs Supuestos) -->
+<div id="seleccionTipoEstudio" class="screen">
+    <header class="screen-header">
+        <button class="btn-back" onclick="volverDashboard()">← Volver</button>
+        <h2>📖 Modo Estudio</h2>
+    </header>
 
+    <div class="config-container">
+        <p style="text-align:center; margin: 0 0 24px; color: #6b7785;">
+            ¿Qué quieres practicar hoy?
+        </p>
+
+        <div class="tipo-estudio-grid">
+            <button class="card-tipo-estudio" onclick="elegirTipoEstudio('tests')">
+                <div class="card-tipo-icono">📖</div>
+                <div class="card-tipo-titulo">Tests</div>
+                <div class="subtitulo-tipo">Preguntas teóricas del temario</div>
+            </button>
+
+            <button id="cardSupuestos" class="card-tipo-estudio" onclick="elegirTipoEstudio('supuestos')">
+                <div class="card-tipo-icono">📋</div>
+                <div class="card-tipo-titulo">
+                    Supuestos prácticos
+                    <span class="candado-premium">🔒</span>
+                </div>
+                <div class="subtitulo-tipo">Practica con casos reales del examen</div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- PANTALLA: LISTA DE SUPUESTOS DISPONIBLES -->
+<div id="pantallaListaSupuestos" class="screen">
+    <header class="screen-header">
+        <button class="btn-back" onclick="mostrarModoEstudio()">← Volver</button>
+        <h2>📋 Supuestos Prácticos</h2>
+    </header>
+
+    <div class="config-container">
+        <p style="text-align:center; margin: 0 0 20px; color: #6b7785;">
+            Cada supuesto presenta un caso real con preguntas asociadas, como en el examen oficial.
+        </p>
+        <div id="listaSupuestos"></div>
+    </div>
+</div>
     <!-- PANTALLA: MODO ESTUDIO -->
     <div id="modoEstudio" class="screen">
         <header class="screen-header">
