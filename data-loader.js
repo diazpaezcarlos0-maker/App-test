@@ -92,6 +92,14 @@ async function cargarPreguntasDesdeSupabase() {
     });
     
     temas = Array.from(porTema.values());
+    
+    // Ordenar temas por el número que aparece en el nombre ("Tema 1 - ...", "Tema 2 - ...")
+    temas.sort((a, b) => {
+        const numA = parseInt((a.nombre.match(/\d+/) || ['9999'])[0]);
+        const numB = parseInt((b.nombre.match(/\d+/) || ['9999'])[0]);
+        return numA - numB;
+    });
+    
     preguntas = todas;
     
     // Guardar caché
