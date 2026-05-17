@@ -160,6 +160,20 @@ async function seleccionarConvocatoria(idConv) {
         await cargarPreguntasDesdeSupabase();
     }
     
+    // Recargar el progreso (vistas, guardadas, falladas, stats) de la nueva convocatoria
+    if (typeof cargarTodoElProgresoDesdeSupabase === 'function') {
+        await cargarTodoElProgresoDesdeSupabase();
+    } else if (typeof cargarProgresoUsuario === 'function') {
+        await cargarProgresoUsuario();
+    }
+    
+    // También recargar vistas desde localStorage para la nueva convocatoria
+    if (typeof cargarPreguntasVistas === 'function' && window.estadoApp) {
+        window.estadoApp.preguntasVistas = cargarPreguntasVistas();
+    } else if (typeof estadoApp !== 'undefined' && typeof cargarPreguntasVistas === 'function') {
+        estadoApp.preguntasVistas = cargarPreguntasVistas();
+    }
+    
     // Ir al dashboard
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('dashboard').classList.add('active');
