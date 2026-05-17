@@ -22,8 +22,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (session) {
         currentUser = session.user;
         await cargarPerfil();
+        // PRIMERO restaurar convocatoria (necesario para que data-loader sepa qué cargar)
+        let restaurada = false;
+        if (typeof restaurarConvocatoriaActual === 'function') {
+            restaurada = await restaurarConvocatoriaActual();
+        }
+        // LUEGO cargar preguntas y progreso
         await inicializarAppPostLogin();
-        await irAPantallaInicialPostLogin();
+        // Decidir a qué pantalla ir
+        if (restaurada) {
+            mostrarDashboard();
+        } else {
+            if (typeof mostrarPantallaConvocatoria === 'function') {
+                await mostrarPantallaConvocatoria();
+            } else {
+                mostrarDashboard();
+            }
+        }
     } else {
         mostrarLogin();
     }
@@ -32,8 +47,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (event === 'SIGNED_IN') {
             currentUser = session.user;
             await cargarPerfil();
+            // Mismo orden: restaurar conv → cargar preguntas → pantalla
+            let restaurada = false;
+            if (typeof restaurarConvocatoriaActual === 'function') {
+                restaurada = await restaurarConvocatoriaActual();
+            }
             await inicializarAppPostLogin();
-            await irAPantallaInicialPostLogin();
+            if (restaurada) {
+                mostrarDashboard();
+            } else {
+                if (typeof mostrarPantallaConvocatoria === 'function') {
+                    await mostrarPantallaConvocatoria();
+                } else {
+                    mostrarDashboard();
+                }
+            }
         } else if (event === 'SIGNED_OUT') {
             currentUser = null;
             userProfile = null;
