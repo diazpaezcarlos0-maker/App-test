@@ -65,11 +65,16 @@ async function publicarComentario(questionDbId, contenido) {
         return false;
     }
     
-    const { error } = await sb.from('comentarios').insert({
+    const insertObj = {
         user_id: currentUser.id,
         question_id: questionDbId,
         contenido: contenido.trim()
-    });
+    };
+    if (window.convocatoriaActualId) {
+        insertObj.convocatoria_id = window.convocatoriaActualId;
+    }
+    
+    const { error } = await sb.from('comentarios').insert(insertObj);
     
     if (error) {
         console.error('Error publicando comentario:', error);
