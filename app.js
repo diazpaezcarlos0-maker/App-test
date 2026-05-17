@@ -51,12 +51,14 @@ function cargarEstadisticas() {
 
 function guardarPreguntasVistas() {
     try {
-        localStorage.setItem('preguntasVistas', JSON.stringify(estadoApp.preguntasVistas));
+        const convId = window.convocatoriaActualId || 'default';
+        localStorage.setItem(`preguntasVistas_conv_${convId}`, JSON.stringify(estadoApp.preguntasVistas));
     } catch (e) {}
 }
 
 function cargarPreguntasVistas() {
-    const vistas = localStorage.getItem('preguntasVistas');
+    const convId = window.convocatoriaActualId || 'default';
+    const vistas = localStorage.getItem(`preguntasVistas_conv_${convId}`);
     return vistas ? JSON.parse(vistas) : [];
 }
 
