@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentUser = session.user;
         await cargarPerfil();
         await inicializarAppPostLogin();
-        irAPantallaInicialPostLogin();
+        await irAPantallaInicialPostLogin();
     } else {
         mostrarLogin();
     }
@@ -33,10 +33,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             currentUser = session.user;
             await cargarPerfil();
             await inicializarAppPostLogin();
-            irAPantallaInicialPostLogin();
+            await irAPantallaInicialPostLogin();
         } else if (event === 'SIGNED_OUT') {
             currentUser = null;
             userProfile = null;
+            window.convocatoriaActualId = null;
+            window.convocatoriaActualData = null;
             mostrarLogin();
         }
     });
@@ -76,20 +78,27 @@ function mostrarLogin() {
 function mostrarDashboard() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('dashboard').classList.add('active');
+    if (typeof actualizarTituloDashboard === 'function') {
+        actualizarTituloDashboard();
+    }
 }
 
 /**
  * Decide a qué pantalla ir tras el login:
- * - Si ya eligió convocatoria en una sesión anterior → directo al dashboard
- * - Si no, mostramos la pantalla de elegir convocatoria
+ * - Si ya tenía una convocatoria guardada → directo al dashboard
+ * - Si no → pantalla de elegir convocatoria
  */
-function irAPantallaInicialPostLogin() {
-    const conv = localStorage.getItem('convocatoria_seleccionada');
-    if (conv) {
+async function irAPantallaInicialPostLogin() {
+    let restaurada = false;
+    if (typeof restaurarConvocatoriaActual === 'function') {
+        restaurada = await restaurarConvocatoriaActual();
+    }
+    
+    if (restaurada) {
         mostrarDashboard();
     } else {
         if (typeof mostrarPantallaConvocatoria === 'function') {
-            mostrarPantallaConvocatoria();
+            await mostrarPantallaConvocatoria();
         } else {
             mostrarDashboard();
         }
@@ -97,7 +106,19 @@ function irAPantallaInicialPostLogin() {
 }
 
 async function cerrarSesion() {
-    // Limpiar convocatoria al cerrar sesión para que la próxima vez la vuelva a elegir
+    // Limpiar convocatoria al cerrar sesión
+    localStorage.removeItem('convocatoria_id');
     localStorage.removeItem('convocatoria_seleccionada');
+    window.convocatoriaActualId = null;
+    window.convocatoriaActualData = null;
     await sb.auth.signOut();
+}
+
+/**
+ * Botón "Cambiar convocatoria" en el dashboard (lo usaremos en Fase 3).
+ */
+async function cambiarConvocatoria() {
+    if (typeof mostrarPantallaConvocatoria === 'function') {
+        await mostrarPantallaConvocatoria();
+    }
 }
