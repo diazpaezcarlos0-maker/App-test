@@ -16,11 +16,22 @@ async function preguntasRespondidasHoy() {
     if (!currentUser) return 0;
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-    const { count, error } = await sb
+    
+    const convocatoriaId = (typeof obtenerConvocatoriaActivaId === 'function') 
+        ? obtenerConvocatoriaActivaId() 
+        : null;
+    
+    let query = sb
         .from('user_progress')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', currentUser.id)
         .gte('created_at', hoy.toISOString());
+    
+    if (convocatoriaId) {
+        query = query.eq('convocatoria_id', convocatoriaId);
+    }
+    
+    const { count, error } = await query;
     if (error) {
         console.error('Error contando preguntas de hoy:', error);
         return 0;
@@ -69,12 +80,15 @@ async function guardarRespuestaEnSupabase(pregunta, indiceSeleccionado, esCorrec
         console.warn('Pregunta sin dbId:', pregunta.texto?.slice(0, 50));
         return true;
     }
+    const convocatoriaId = window.convocatoriaActualId || null;
+    
     const { error } = await sb.from('user_progress').insert({
         user_id: currentUser.id,
         question_id: pregunta.dbId,
         respuesta_dada: indiceSeleccionado,
         es_correcta: esCorrecta,
-        modo: modo
+        modo: modo,
+        convocatoria_id: convocatoriaId
     });
     if (error) {
         console.error('Error guardando respuesta:', error);
