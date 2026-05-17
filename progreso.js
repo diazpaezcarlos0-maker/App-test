@@ -182,10 +182,15 @@ async function cargarVistasDesdeSupabase() {
 async function guardarGuardadaEnSupabase(questionId) {
     if (!currentUser || !questionId) return;
     
-    const { error } = await sb.from('saved_questions').insert({
+    const insertObj = {
         user_id: currentUser.id,
         question_id: questionId
-    });
+    };
+    if (window.convocatoriaActualId) {
+        insertObj.convocatoria_id = window.convocatoriaActualId;
+    }
+    
+    const { error } = await sb.from('saved_questions').insert(insertObj);
     
     if (error && error.code !== '23505') { // 23505 = unique violation, ya estaba guardada
         console.error('Error guardando favorita:', error);
