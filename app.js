@@ -307,7 +307,7 @@ function ajustarCantidad(delta) {
 
 function iniciarModoEstudio() {
     const temasSeleccionados = Array.from(document.querySelectorAll('#temasSeleccionEstudio input:checked'))
-        .map(cb => parseInt(cb.value));
+        .map(cb => cb.value);
     
     if (temasSeleccionados.length === 0) {
         alert('Selecciona al menos un tema');
