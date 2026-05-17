@@ -120,21 +120,24 @@
 
 
     <!-- PANTALLA PRINCIPAL: DASHBOARD -->
-    <div id="dashboard" class="screen">
-       <header class="dashboard-header">
-          <div class="header-content">
-             <h1>📚 Oposición Ayto. Madrid</h1>
-             <p class="subtitle">Administrativa Promoción Interna C1</p>
-          </div>
-          <div class="header-acciones">
-             <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
-                <span class="theme-icon">🌙</span>
-             </button>
-             <button class="btn-logout" onclick="cerrarSesion()" title="Cerrar sesión">
-                🚪
-             </button>
-          </div>
-    </header>
+<div id="dashboard" class="screen">
+   <header class="dashboard-header">
+      <div class="header-content">
+         <h1>📚 Oposición Ayto. Madrid</h1>
+         <p class="subtitle">Administrativa Promoción Interna C1</p>
+      </div>
+      <div class="header-acciones">
+         <button class="btn-cambiar-conv" onclick="cambiarConvocatoria()" title="Cambiar oposición">
+            🔄 Cambiar
+         </button>
+         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+            <span class="theme-icon">🌙</span>
+         </button>
+         <button class="btn-logout" onclick="cerrarSesion()" title="Cerrar sesión">
+            🚪
+         </button>
+      </div>
+   </header>
 
         <!-- ESTADÍSTICAS GENERALES -->
         <section class="stats-container">
