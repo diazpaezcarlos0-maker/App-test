@@ -246,7 +246,7 @@ async function guardarIntentoSimulacroSemanal(aciertos, fallos, sinResponder, du
     const nota = calcularNotaSobre10(aciertos, fallos, total);
     const semanaId = obtenerSemanaActualId();
     
-    const { error } = await sb.from('simulacro_semanal_intentos').insert({
+    const insertObj = {
         user_id: currentUser.id,
         semana_id: semanaId,
         aciertos,
@@ -254,7 +254,12 @@ async function guardarIntentoSimulacroSemanal(aciertos, fallos, sinResponder, du
         sin_responder: sinResponder,
         nota_sobre_10: nota,
         duracion_segundos: duracionSegundos
-    });
+    };
+    if (window.convocatoriaActualId) {
+        insertObj.convocatoria_id = window.convocatoriaActualId;
+    }
+    
+    const { error } = await sb.from('simulacro_semanal_intentos').insert(insertObj);
     
     if (error) {
         console.error('Error guardando intento semanal:', error);
