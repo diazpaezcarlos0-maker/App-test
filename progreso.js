@@ -51,10 +51,14 @@ async function cargarTodoElProgresoDesdeSupabase() {
  * con la misma forma que esperaba el código antiguo.
  */
 async function cargarGuardadasDesdeSupabase() {
-    const { data, error } = await sb
+    const convId = window.convocatoriaActualId;
+    let query = sb
         .from('saved_questions')
         .select('question_id')
         .eq('user_id', currentUser.id);
+    if (convId) query = query.eq('convocatoria_id', convId);
+    
+    const { data, error } = await query;
     
     if (error || !data) {
         console.error('Error cargando guardadas:', error);
@@ -85,11 +89,15 @@ async function cargarGuardadasDesdeSupabase() {
  * Devuelve las preguntas que el usuario ha respondido y SU ÚLTIMA RESPUESTA fue incorrecta.
  */
 async function cargarFalladasDesdeSupabase() {
-    const { data, error } = await sb
+    const convId = window.convocatoriaActualId;
+    let query = sb
         .from('user_last_answer')
-        .select('question_id, es_correcta')
+        .select('question_id, es_correcta, convocatoria_id')
         .eq('user_id', currentUser.id)
         .eq('es_correcta', false);
+    if (convId) query = query.eq('convocatoria_id', convId);
+    
+    const { data, error } = await query;
     
     if (error || !data) {
         console.error('Error cargando falladas:', error);
@@ -120,10 +128,14 @@ async function cargarFalladasDesdeSupabase() {
  * { [temaId]: { respondidas, correctas } }
  */
 async function cargarEstadisticasDesdeSupabase() {
-    const { data, error } = await sb
+    const convId = window.convocatoriaActualId;
+    let query = sb
         .from('user_tema_stats')
         .select('*')
         .eq('user_id', currentUser.id);
+    if (convId) query = query.eq('convocatoria_id', convId);
+    
+    const { data, error } = await query;
     
     if (error || !data) {
         console.error('Error cargando stats:', error);
@@ -150,11 +162,14 @@ async function cargarEstadisticasDesdeSupabase() {
  * Devuelve los IDs de preguntas vistas (cualquier respuesta dada) en formato legacy "temaId-indexEnTema".
  */
 async function cargarVistasDesdeSupabase() {
-    // Traemos los question_id distintos que el user ha respondido alguna vez
-    const { data, error } = await sb
+    const convId = window.convocatoriaActualId;
+    let query = sb
         .from('user_progress')
-        .select('question_id')
+        .select('question_id, convocatoria_id')
         .eq('user_id', currentUser.id);
+    if (convId) query = query.eq('convocatoria_id', convId);
+    
+    const { data, error } = await query;
     
     if (error || !data) {
         console.error('Error cargando vistas:', error);
@@ -212,4 +227,9 @@ async function eliminarGuardadaEnSupabase(questionId) {
     if (error) {
         console.error('Error eliminando favorita:', error);
     }
+}
+
+// Alias para que data-loader.js pueda llamarla
+async function cargarProgresoUsuario() {
+    return await cargarTodoElProgresoDesdeSupabase();
 }
