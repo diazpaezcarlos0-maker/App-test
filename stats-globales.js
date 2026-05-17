@@ -95,16 +95,28 @@ async function obtenerStatsGlobalesPorTema() {
  * Devuelve: array de { posicion, nombre, acertadas, respondidas, porcentaje, esYo, user_id }
  */
 async function obtenerRanking(periodo = 'total') {
-    const campoAcert = 'acert_' + periodo;
-    const campoResp = 'resp_' + periodo;
+    const convId = window.convocatoriaActualId;
     
-    const { data, error } = await sb
+    // La vista nueva tiene: aciertos, aciertos_hoy, aciertos_semana, aciertos_mes, total_respondidas, porcentaje
+    const mapeoCampo = {
+        'total': 'aciertos',
+        'hoy': 'aciertos_hoy',
+        'semana': 'aciertos_semana',
+        'mes': 'aciertos_mes'
+    };
+    const campoAcert = mapeoCampo[periodo] || 'aciertos';
+    
+    let query = sb
         .from('global_ranking_v2')
-        .select(`user_id, nombre, ${campoAcert}, ${campoResp}`)
-        .gt(campoResp, 0) // solo usuarios con al menos 1 respuesta en ese período
+        .select(`user_id, nombre, ${campoAcert}, total_respondidas, porcentaje, convocatoria_id`)
+        .gt(campoAcert, 0)
         .order(campoAcert, { ascending: false })
-        .order(campoResp, { ascending: true }) // desempate: misma acertadas → gana quien menos respondió (mejor %)
-        .limit(500); // top 500 como mucho
+        .order('total_respondidas', { ascending: true })
+        .limit(500);
+    
+    if (convId) query = query.eq('convocatoria_id', convId);
+    
+    const { data, error } = await query;
     
     if (error || !data) {
         console.error('Error cargando ranking:', error);
@@ -113,7 +125,7 @@ async function obtenerRanking(periodo = 'total') {
     
     return data.map((row, i) => {
         const acertadas = row[campoAcert] || 0;
-        const respondidas = row[campoResp] || 0;
+        const respondidas = row.total_respondidas || 0;
         const porcentaje = respondidas > 0 ? Math.round(100 * acertadas / respondidas) : 0;
         return {
             posicion: i + 1,
