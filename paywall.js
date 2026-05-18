@@ -148,11 +148,14 @@ function crearMuroPago() {
                 </div>
             </div>
             
-            <button class="btn-suscribirse" onclick="iniciarSuscripcion()">
-                Apoyar el proyecto · ${PRECIO_PREMIUM}
+            <button class="btn-suscribirse" disabled style="opacity:0.55; cursor:not-allowed; background:#9ca3af; border-color:#9ca3af;">
+                Próximamente · ${PRECIO_PREMIUM}
             </button>
+            <p style="font-size:0.85em; color:#6b7785; margin:10px 0 0; text-align:center;">
+                La opción de apoyar el proyecto estará disponible en breve.
+            </p>
             <button class="btn-secundario" onclick="cerrarMuroPago()">
-                Ahora no, gracias
+                Cerrar
             </button>
         </div>
     `;
