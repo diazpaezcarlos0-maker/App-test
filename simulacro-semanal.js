@@ -191,11 +191,11 @@ async function abrirSimulacroSemanal() {
         return;
     }
     
-    // Comprobar premium
-    if (!userProfile || userProfile.subscription_status !== 'premium') {
-        mostrarMuroPago('El simulacro semanal es exclusivo de Premium. Apoya el proyecto para participar.');
-        return;
-    }
+    // Comprobar premium (TEMPORALMENTE DESACTIVADO - se reactivará cuando la opción de apoyar esté lista)
+    // if (!userProfile || userProfile.subscription_status !== 'premium') {
+    //     mostrarMuroPago('El simulacro semanal es exclusivo de Premium. Apoya el proyecto para participar.');
+    //     return;
+    // }
     
     // Comprobar si ya lo hizo
     const intento = await obtenerMiIntentoSemanal();
@@ -446,13 +446,13 @@ async function actualizarBadgeSimulacroSemanal() {
     
     if (!currentUser) return;
     
-    // No premium
-    if (!userProfile || userProfile.subscription_status !== 'premium') {
-        badge.textContent = '🔒 Premium';
-        badge.className = 'badge-semanal gris';
-        subtitulo.textContent = 'Apoya el proyecto para acceder';
-        return;
-    }
+    // No premium (TEMPORALMENTE DESACTIVADO - todos los usuarios tienen acceso)
+    // if (!userProfile || userProfile.subscription_status !== 'premium') {
+    //     badge.textContent = '🔒 Premium';
+    //     badge.className = 'badge-semanal gris';
+    //     subtitulo.textContent = 'Apoya el proyecto para acceder';
+    //     return;
+    // }
     
     const intento = await obtenerMiIntentoSemanal();
     if (intento) {
