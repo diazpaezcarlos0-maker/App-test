@@ -1,5 +1,6 @@
 // ============================================
 // CONVOCATORIAS — Multi-convocatoria
+// Agrupado por organismo: Ayuntamiento de Madrid / Comunidad de Madrid
 // ============================================
 
 // Variable GLOBAL accesible desde otros archivos
@@ -50,50 +51,64 @@ async function renderizarConvocatorias() {
         return;
     }
     
-    // Mantener la sección de "Próximamente" y "Sugerir"
-    const htmlConvocatorias = convocatorias.map(c => `
-        <button class="convocatoria-card activa" onclick="seleccionarConvocatoria(${c.id})">
-            <div class="conv-icono">${escaparHtmlConv(c.icono || '🏛️')}</div>
-            <div class="conv-info">
-                <h3>${escaparHtmlConv(c.nombre)}</h3>
-                <p>${escaparHtmlConv(c.descripcion || '')} · <span class="conv-conteo" data-conv-id="${c.id}">…</span> preguntas</p>
-            </div>
-            <div class="conv-meta">
-                <span class="conv-badge">Disponible</span>
-            </div>
-            <span class="conv-flecha">→</span>
-        </button>
-    `).join('');
+    // Agrupar por organismo
+    const ayuntamiento = convocatorias.filter(c => c.organismo === 'ayuntamiento');
+    const comunidad = convocatorias.filter(c => c.organismo === 'comunidad');
+    const sinOrganismo = convocatorias.filter(c => !c.organismo);
     
-    cont.innerHTML = `
-        ${htmlConvocatorias}
-
-        <div class="conv-seccion-titulo">
-            <h3>Próximamente</h3>
-        </div>
-
-        <button class="convocatoria-card proximamente" disabled>
-            <div class="conv-icono">🇪🇸</div>
-            <div class="conv-info">
-                <h3>Administrativo General del Estado</h3>
-                <p>En desarrollo</p>
+    function renderTarjeta(c) {
+        return `
+            <button class="convocatoria-card activa" onclick="seleccionarConvocatoria(${c.id})">
+                <div class="conv-icono">${escaparHtmlConv(c.icono || '🏛️')}</div>
+                <div class="conv-info">
+                    <h3>${escaparHtmlConv(c.nombre)}</h3>
+                    <p>${escaparHtmlConv(c.descripcion || '')} · <span class="conv-conteo" data-conv-id="${c.id}">…</span> preguntas</p>
+                </div>
+                <div class="conv-meta">
+                    <span class="conv-badge">Disponible</span>
+                </div>
+                <span class="conv-flecha">→</span>
+            </button>
+        `;
+    }
+    
+    let html = '';
+    
+    // Sección Ayuntamiento de Madrid (rojo)
+    if (ayuntamiento.length > 0) {
+        html += `
+            <div class="organismo-header organismo-ayuntamiento">
+                <span class="organismo-icono">🏛️</span>
+                <span class="organismo-nombre">Ayuntamiento de Madrid</span>
             </div>
-            <div class="conv-meta">
-                <span class="conv-badge gris">Próximamente</span>
+            ${ayuntamiento.map(renderTarjeta).join('')}
+        `;
+    }
+    
+    // Sección Comunidad de Madrid (azul)
+    if (comunidad.length > 0) {
+        html += `
+            <div class="organismo-header organismo-comunidad">
+                <span class="organismo-icono">🏢</span>
+                <span class="organismo-nombre">Comunidad de Madrid</span>
             </div>
-        </button>
-
-        <button class="convocatoria-card proximamente" disabled>
-            <div class="conv-icono">🏙️</div>
-            <div class="conv-info">
-                <h3>Administrativo Comunidad de Madrid</h3>
-                <p>En desarrollo</p>
+            ${comunidad.map(renderTarjeta).join('')}
+        `;
+    }
+    
+    // Sección "Otros" (sin organismo asignado, por si acaso)
+    if (sinOrganismo.length > 0) {
+        html += `
+            <div class="organismo-header organismo-otros">
+                <span class="organismo-icono">📚</span>
+                <span class="organismo-nombre">Otras convocatorias</span>
             </div>
-            <div class="conv-meta">
-                <span class="conv-badge gris">Próximamente</span>
-            </div>
-        </button>
-
+            ${sinOrganismo.map(renderTarjeta).join('')}
+        `;
+    }
+    
+    // Bloque Sugerir (siempre al final)
+    html += `
         <div class="sugerir-bloque">
             <div class="sugerir-icon">💡</div>
             <h3>¿No ves tu oposición?</h3>
@@ -103,6 +118,8 @@ async function renderizarConvocatorias() {
             </button>
         </div>
     `;
+    
+    cont.innerHTML = html;
 }
 
 async function actualizarContadorPreguntas() {
@@ -116,7 +133,7 @@ async function actualizarContadorPreguntas() {
                 .from('questions')
                 .select('*', { count: 'exact', head: true })
                 .eq('convocatoria_id', convId)
-                .is('supuesto_id', null);  // solo preguntas teóricas
+                .is('supuesto_id', null);
             
             if (!error) {
                 span.textContent = (count || 0).toLocaleString('es-ES');
@@ -137,44 +154,35 @@ async function seleccionarConvocatoria(idConv) {
         return;
     }
     
-    // Guardar globalmente
     window.convocatoriaActualId = conv.id;
     window.convocatoriaActualData = conv;
     
-    // Persistir en localStorage
     localStorage.setItem(CONVOCATORIA_KEY_ID, String(conv.id));
-    // Limpiar la versión vieja
     localStorage.removeItem(CONVOCATORIA_KEY_LEGACY);
     
-    // Actualizar título del dashboard si existe
     actualizarTituloDashboard();
     
-    // Invalidar caché de preguntas para que se recarguen con la nueva convocatoria
     if (typeof localStorage !== 'undefined') {
         localStorage.removeItem('preguntas_cache_v1');
         localStorage.removeItem('preguntas_cache_v2');
     }
     
-    // Recargar las preguntas de la convocatoria nueva
     if (typeof cargarPreguntasDesdeSupabase === 'function') {
         await cargarPreguntasDesdeSupabase();
     }
     
-    // Recargar el progreso (vistas, guardadas, falladas, stats) de la nueva convocatoria
     if (typeof cargarTodoElProgresoDesdeSupabase === 'function') {
         await cargarTodoElProgresoDesdeSupabase();
     } else if (typeof cargarProgresoUsuario === 'function') {
         await cargarProgresoUsuario();
     }
     
-    // También recargar vistas desde localStorage para la nueva convocatoria
     if (typeof cargarPreguntasVistas === 'function' && window.estadoApp) {
         window.estadoApp.preguntasVistas = cargarPreguntasVistas();
     } else if (typeof estadoApp !== 'undefined' && typeof cargarPreguntasVistas === 'function') {
         estadoApp.preguntasVistas = cargarPreguntasVistas();
     }
     
-    // Ir al dashboard
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('dashboard').classList.add('active');
     
@@ -197,12 +205,10 @@ function actualizarTituloDashboard() {
     if (subtitulo) subtitulo.textContent = conv.descripcion || '';
 }
 
-// Restaurar la convocatoria seleccionada al iniciar la app
 async function restaurarConvocatoriaActual() {
     const convocatorias = await cargarConvocatorias();
     if (convocatorias.length === 0) return false;
     
-    // Intentar recuperar de localStorage
     const guardado = localStorage.getItem(CONVOCATORIA_KEY_ID);
     if (guardado) {
         const id = parseInt(guardado);
@@ -215,7 +221,6 @@ async function restaurarConvocatoriaActual() {
         }
     }
     
-    // Migración: si tenía la versión vieja (string), por defecto le ponemos la primera (Administrativo)
     const legacy = localStorage.getItem(CONVOCATORIA_KEY_LEGACY);
     if (legacy) {
         const primera = convocatorias[0];
@@ -227,7 +232,7 @@ async function restaurarConvocatoriaActual() {
         return true;
     }
     
-    return false; // ninguna seleccionada
+    return false;
 }
 
 // ============================================
