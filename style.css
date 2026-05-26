@@ -4229,3 +4229,67 @@ body {
 .btn-cambiar-conv:hover {
     background: rgba(255, 255, 255, 0.28);
 }
+/* ============================================
+   CABECERAS DE ORGANISMO
+   Añadir al final de style.css
+============================================ */
+
+.organismo-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin: 24px 0 14px;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.organismo-header:first-child {
+    margin-top: 8px;
+}
+
+.organismo-icono {
+    font-size: 1.6em;
+    line-height: 1;
+}
+
+.organismo-nombre {
+    font-size: 1.1em;
+    letter-spacing: 0.3px;
+}
+
+/* Ayuntamiento de Madrid - rojo institucional */
+.organismo-ayuntamiento {
+    background: linear-gradient(135deg, #C8102E 0%, #9B0C24 100%);
+}
+
+/* Comunidad de Madrid - azul institucional */
+.organismo-comunidad {
+    background: linear-gradient(135deg, #003D7C 0%, #002D5C 100%);
+}
+
+/* Otras convocatorias - gris neutro */
+.organismo-otros {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+}
+
+/* Responsive móvil */
+@media (max-width: 600px) {
+    .organismo-header {
+        padding: 12px 14px;
+        margin: 18px 0 10px;
+    }
+    .organismo-icono {
+        font-size: 1.4em;
+    }
+    .organismo-nombre {
+        font-size: 1em;
+    }
+}
+
+/* Dark mode (si lo usas) */
+[data-theme="dark"] .organismo-header {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
