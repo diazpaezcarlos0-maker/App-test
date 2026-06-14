@@ -60,7 +60,7 @@
             
             <p class="login-info">✨ Gratis e ilimitado para todos los opositores</p>
 
-            <button class="btn-instalar" onclick="instalarApp()" style="display:none;">
+            <button class="btn-instalar" onclick="instalarApp()">
                 📲 Instalar app en tu dispositivo
             </button>
         </div>
@@ -153,6 +153,12 @@
          </button>
       </div>
    </header>
+
+        <div class="instalar-banner">
+            <button class="btn-instalar" onclick="instalarApp()">
+                📲 Instalar OPOTEST en tu dispositivo
+            </button>
+        </div>
 
         <!-- ESTADÍSTICAS GENERALES -->
         <section class="stats-container">
@@ -602,12 +608,8 @@
       document.addEventListener('DOMContentLoaded', () => {
         const yaInstalada = window.matchMedia('(display-mode: standalone)').matches
           || window.navigator.standalone === true;
-        const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-        if (yaInstalada) {
-          mostrarBotonesInstalar(false);
-        } else if (esIOS) {
-          mostrarBotonesInstalar(true); // iOS no dispara beforeinstallprompt
-        }
+        // Los botones se muestran por defecto. Solo se ocultan si la app ya está instalada.
+        if (yaInstalada) mostrarBotonesInstalar(false);
       });
     </script>
 </body>
