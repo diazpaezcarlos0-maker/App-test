@@ -537,7 +537,7 @@ function mostrarPregunta() {
         
         div.innerHTML = `
             <div class="opcion-letra">${letras[posicionMostrada]}</div>
-            <div class="opcion-texto">${opcion}</div>
+            <div class="opcion-texto">${typeof escaparHtml === 'function' ? escaparHtml(opcion) : opcion}</div>
         `;
         
         container.appendChild(div);
