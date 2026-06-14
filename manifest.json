@@ -8,6 +8,13 @@
   "background_color": "#1a365d",
   "theme_color": "#1a365d",
   "lang": "es-ES",
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://opotestmadrid.es/manifest.json"
+    }
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
