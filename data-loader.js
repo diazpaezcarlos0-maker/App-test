@@ -126,12 +126,6 @@ function limpiarCachePreguntas() {
     console.log('Caché de preguntas limpiada');
 }
 
-async function inicializarAppPostLogin() {
-    if (window.convocatoriaActualId) {
-        await cargarPreguntasDesdeSupabase();
-    }
-    
-    if (typeof cargarProgresoUsuario === 'function') {
-        await cargarProgresoUsuario();
-    }
-}
+// NOTA: inicializarAppPostLogin() vive en app.js (versión con try/catch y
+// cargarDashboard). Se eliminó la copia duplicada que había aquí para evitar
+// colisiones de nombre entre ficheros.
