@@ -4485,3 +4485,31 @@ select:focus-visible {
     background: linear-gradient(90deg, var(--primary), var(--accent));
     transition: width 0.3s ease;
 }
+
+/* ============================================
+   BOTÓN INSTALAR APP (PWA)
+   ============================================ */
+.btn-instalar {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px 18px;
+    border: 1.5px solid var(--accent);
+    border-radius: 99px;
+    background: transparent;
+    color: var(--accent-dark);
+    font: 600 0.95rem var(--font-body);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.btn-instalar:hover {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px -4px var(--ring);
+}
+[data-theme="dark"] .btn-instalar { color: var(--accent); }
+[data-theme="dark"] .btn-instalar:hover { color: #1a1208; }
