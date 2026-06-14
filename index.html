@@ -59,10 +59,6 @@
             </button>
             
             <p class="login-info">✨ Gratis e ilimitado para todos los opositores</p>
-
-            <button class="btn-instalar" onclick="instalarApp()">
-                📲 Instalar app en tu dispositivo
-            </button>
         </div>
     </div>
 </div>
@@ -196,13 +192,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- BANNER INSTALAR APP -->
-        <div class="instalar-banner">
-            <button class="btn-instalar" onclick="instalarApp()">
-                📲 Instala OPOTEST en tu dispositivo y estudia sin abrir el navegador
-            </button>
-        </div>
 
         <!-- MENÚ PRINCIPAL -->
         <section class="menu-principal">
@@ -565,75 +554,8 @@
             .catch(err => console.warn('SW no registrado:', err));
         });
       }
-
-      // --- Instalación de la app (PWA) ---
-      let deferredInstallPrompt = null;
-      function mostrarBotonesInstalar(mostrar) {
-        document.querySelectorAll('.btn-instalar')
-          .forEach(b => b.style.display = mostrar ? '' : 'none');
-      }
-
-      // Android / Chrome / Edge: el navegador avisa cuando se puede instalar
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredInstallPrompt = e;
-        mostrarBotonesInstalar(true);
-      });
-
-      async function instalarApp() {
-        // Si hay diálogo nativo disponible, lo lanzamos
-        if (deferredInstallPrompt) {
-          deferredInstallPrompt.prompt();
-          const { outcome } = await deferredInstallPrompt.userChoice;
-          deferredInstallPrompt = null;
-          if (outcome === 'accepted') mostrarBotonesInstalar(false);
-          return;
-        }
-        // iPhone/iPad: Safari no permite diálogo automático → instrucciones
-        const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-        if (esIOS) {
-          alert('Para instalar OPOTEST en iPhone o iPad:\n\n' +
-                '1.  Pulsa el botón Compartir (el cuadro con la flecha ↑) abajo en Safari.\n' +
-                '2.  Desliza y elige “Añadir a pantalla de inicio”.\n' +
-                '3.  Pulsa “Añadir”. ¡Listo!');
-        } else {
-          alert('Para instalarla, abre OPOTEST en Chrome (móvil o escritorio) y usa el menú ⋮ → “Instalar app”. Puede que ya la tengas instalada.');
-        }
-      }
-
-      // ¿La app ya está instalada? Si es así, no mostramos el botón.
-      function marcarInstalada() {
-        try { localStorage.setItem('opotest_pwa_instalada', '1'); } catch (e) {}
-      }
-      async function appYaInstalada() {
-        // 1) Abierta como app instalada (standalone)
-        if (window.matchMedia('(display-mode: standalone)').matches
-            || window.navigator.standalone === true) {
-          marcarInstalada();
-          return true;
-        }
-        // 2) Ya la instaló antes en este navegador
-        try { if (localStorage.getItem('opotest_pwa_instalada') === '1') return true; } catch (e) {}
-        // 3) Android/Chrome: comprobar apps instaladas relacionadas
-        if (navigator.getInstalledRelatedApps) {
-          try {
-            const apps = await navigator.getInstalledRelatedApps();
-            if (apps && apps.length > 0) { marcarInstalada(); return true; }
-          } catch (e) {}
-        }
-        return false;
-      }
-
-      window.addEventListener('appinstalled', () => {
-        deferredInstallPrompt = null;
-        marcarInstalada();
-        mostrarBotonesInstalar(false);
-      });
-
-      document.addEventListener('DOMContentLoaded', async () => {
-        // Por defecto los botones se muestran; se ocultan solo si ya está instalada.
-        if (await appYaInstalada()) mostrarBotonesInstalar(false);
-      });
+      // No interceptamos 'beforeinstallprompt': dejamos que el navegador
+      // ofrezca instalar la app por su cuenta (añadir a pantalla de inicio).
     </script>
 </body>
 </html>
