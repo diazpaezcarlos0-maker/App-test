@@ -202,9 +202,15 @@
                     <p class="subtitulo-semanal">50 preguntas · Compite con todos los opositores</p>
                 </div>
             </button>
-            <button class="menu-card" onclick="mostrarModoEstudio()">
+            <button class="menu-card" onclick="mostrarModoEstudioTema()">
                 <div class="menu-icon">📖</div>
                 <h3>Modo Estudio</h3>
+                <p>Estudia un tema entero a tu ritmo, pregunta a pregunta</p>
+            </button>
+
+            <button class="menu-card" onclick="mostrarModoEstudio()">
+                <div class="menu-icon">📝</div>
+                <h3>Modo Test</h3>
                 <p>Elige temas y número de preguntas</p>
             </button>
 
@@ -242,7 +248,7 @@
 <div id="seleccionTipoEstudio" class="screen">
     <header class="screen-header">
         <button class="btn-back" onclick="volverDashboard()">← Volver</button>
-        <h2>📖 Modo Estudio</h2>
+        <h2>📝 Modo Test</h2>
     </header>
 
     <div class="config-container">
@@ -284,10 +290,27 @@
     </div>
 </div>
     <!-- PANTALLA: MODO ESTUDIO -->
-    <div id="modoEstudio" class="screen">
+    <!-- PANTALLA: MODO ESTUDIO (un tema · una a una · sin límite) -->
+    <div id="modoEstudioTema" class="screen">
         <header class="screen-header">
             <button class="btn-back" onclick="volverDashboard()">← Volver</button>
             <h2>📖 Modo Estudio</h2>
+        </header>
+
+        <div class="config-container">
+            <p style="text-align:center; margin:0 0 24px; color:var(--text-secondary);">
+                Elige un tema y ve respondiendo a tu ritmo. Cada respuesta se guarda sola:
+                puedes parar cuando quieras y continuar otro día por donde lo dejaste.
+            </p>
+            <div class="temas-grid" id="temasEstudioLista"></div>
+        </div>
+    </div>
+
+    <!-- PANTALLA: MODO TEST (varios temas · nº de preguntas · resultados) -->
+    <div id="modoEstudio" class="screen">
+        <header class="screen-header">
+            <button class="btn-back" onclick="volverDashboard()">← Volver</button>
+            <h2>📝 Modo Test</h2>
         </header>
 
         <div class="config-container">
@@ -312,7 +335,7 @@
                     <button onclick="ajustarCantidad(5)">+5</button>
                 </div>
                 <button class="btn-primary btn-large" onclick="iniciarModoEstudio()">
-                    Comenzar Estudio
+                    Comenzar Test
                 </button>
             </div>
         </div>
