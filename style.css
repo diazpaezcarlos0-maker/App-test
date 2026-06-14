@@ -4516,10 +4516,24 @@ select:focus-visible {
 
 /* Banner de instalar en el dashboard */
 .instalar-banner {
-    max-width: 900px;
-    margin: 0 auto 1.5rem;
-    padding: 0 1rem;
+    max-width: 1100px;
+    margin: 0 auto 1.25rem;
+    padding: 0 20px;
 }
 .instalar-banner .btn-instalar {
     margin-top: 0;
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid var(--accent);
+    background: var(--bg-primary);
+    color: var(--accent-dark);
+    box-shadow: var(--shadow);
+    padding: 14px 18px;
 }
+.instalar-banner .btn-instalar:hover {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    box-shadow: 0 8px 20px -6px var(--ring);
+}
+[data-theme="dark"] .instalar-banner .btn-instalar { color: var(--accent); }
+[data-theme="dark"] .instalar-banner .btn-instalar:hover { color: #1a1208; }
