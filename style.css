@@ -4444,3 +4444,44 @@ select:focus-visible {
         transition-duration: 0.001ms !important;
     }
 }
+
+/* ============================================
+   MODO ESTUDIO POR TEMA — lista de temas
+   ============================================ */
+.tema-estudio-item {
+    align-items: center;
+}
+.tema-estudio-item:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+.tema-estudio-item .tema-stats {
+    color: var(--text-secondary);
+    margin-bottom: 0.45rem;
+}
+.tema-estudio-flecha {
+    flex-shrink: 0;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px -2px var(--ring);
+}
+.barra-progreso-tema {
+    height: 6px;
+    border-radius: 99px;
+    background: var(--bg-tertiary);
+    overflow: hidden;
+}
+.barra-progreso-tema span {
+    display: block;
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    transition: width 0.3s ease;
+}
