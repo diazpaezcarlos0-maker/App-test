@@ -806,6 +806,16 @@ function irAPregunta(indice) {
 
 function renderizarMiniMapa() {
     const container = document.getElementById('miniMapa');
+    if (!container) return;
+    const nav = container.closest('.test-navegacion') || container;
+
+    // En Modo Estudio (un tema, muchas preguntas) el mini-mapa no aporta y queda feo: se oculta.
+    if (estadoApp.submodo === 'estudio') {
+        nav.style.display = 'none';
+        container.innerHTML = '';
+        return;
+    }
+    nav.style.display = '';
     container.innerHTML = '';
     
     estadoApp.preguntasActuales.forEach((pregunta, index) => {
