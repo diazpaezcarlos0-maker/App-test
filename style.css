@@ -2,48 +2,74 @@
    VARIABLES Y RESET
    ============================================ */
 :root {
-    --primary: #2563eb;
-    --primary-dark: #1e40af;
-    --secondary: #64748b;
-    --success: #10b981;
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    
+    /* Marca: azul institucional + acento dorado cálido */
+    --primary: #2454c4;
+    --primary-dark: #18387f;
+    --accent: #c8881c;
+    --accent-dark: #a76e12;
+    --secondary: #586781;
+    --success: #15915f;
+    --danger: #ce3a3a;
+    --warning: #d2871a;
+
+    /* Tintes suaves para estados de respuesta */
+    --success-bg: #e7f4ee;
+    --danger-bg: #fbe9e9;
+
     --bg-primary: #ffffff;
-    --bg-secondary: #f8fafc;
-    --bg-tertiary: #f1f5f9;
-    
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    --text-muted: #94a3b8;
-    
-    --border: #e2e8f0;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    
+    --bg-secondary: #eef2f9;
+    --bg-tertiary: #e1e8f3;
+    --card-bg: #ffffff;
+
+    --text-primary: #16223c;
+    --text-secondary: #54627d;
+    --text-muted: #8c99b1;
+
+    --border: #dce3f0;
+    --ring: rgba(36, 84, 196, 0.35);
+
+    --shadow-sm: 0 1px 2px 0 rgb(20 35 60 / 0.06);
+    --shadow: 0 2px 8px -1px rgb(20 35 60 / 0.08), 0 1px 3px -1px rgb(20 35 60 / 0.06);
+    --shadow-lg: 0 14px 30px -8px rgb(20 35 60 / 0.16), 0 6px 12px -8px rgb(20 35 60 / 0.10);
+
     --radius: 0.75rem;
     --radius-sm: 0.5rem;
-    --radius-lg: 1rem;
+    --radius-lg: 1.1rem;
+
+    /* Tipografía */
+    --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* DARK MODE */
 [data-theme="dark"] {
-    --primary: #3b82f6;
-    --primary-dark: #2563eb;
-    
-    --bg-primary: #1e293b;
-    --bg-secondary: #0f172a;
-    --bg-tertiary: #334155;
-    
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    
-    --border: #334155;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+    --primary: #5b8def;
+    --primary-dark: #3f74da;
+    --accent: #e2ac4c;
+    --accent-dark: #c8913a;
+    --secondary: #8a99b4;
+    --success: #2fb583;
+    --danger: #ef6a6a;
+    --warning: #e3a63b;
+
+    --success-bg: #12352a;
+    --danger-bg: #3a1e1e;
+
+    --bg-primary: #16233a;
+    --bg-secondary: #0c1626;
+    --bg-tertiary: #1e3052;
+    --card-bg: #16233a;
+
+    --text-primary: #eaf0f8;
+    --text-secondary: #a3b3cb;
+    --text-muted: #6f81a0;
+
+    --border: #294062;
+    --ring: rgba(91, 141, 239, 0.4);
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.35);
+    --shadow: 0 2px 10px -1px rgb(0 0 0 / 0.45), 0 1px 3px -1px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 16px 34px -8px rgb(0 0 0 / 0.55), 0 6px 14px -8px rgb(0 0 0 / 0.45);
 }
 
 html {
@@ -4292,4 +4318,129 @@ body {
 /* Dark mode (si lo usas) */
 [data-theme="dark"] .organismo-header {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   OPOTEST · CAPA DE DISEÑO v2 (lavado de cara)
+   Solo estética: tipografía, profundidad, foco y
+   feedback de respuesta. No cambia la maquetación.
+   ============================================ */
+
+/* — Tipografía — */
+body {
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4,
+.dashboard-header h1,
+.login-card h1,
+.conv-header-titulo h1,
+.screen-header h2 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+    font-weight: 700;
+}
+.login-card h1 { font-weight: 800; }
+
+/* — Selección de texto y barra de scroll — */
+::selection { background: var(--ring); color: var(--text-primary); }
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 99px;
+    border: 2px solid var(--bg-secondary);
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* — Foco accesible (teclado) — */
+a:focus-visible,
+button:focus-visible,
+.opcion:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ring);
+    border-radius: var(--radius-sm);
+}
+
+/* — Botón primario y de apoyo: profundidad y elevación al hover — */
+.btn-primary,
+.btn-suscribirse {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    box-shadow: 0 2px 10px -2px var(--ring);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.btn-primary:hover,
+.btn-suscribirse:hover {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -4px var(--ring);
+}
+.btn-primary:active,
+.btn-suscribirse:active { transform: translateY(0); filter: brightness(0.98); }
+
+/* — Botón de Google: más limpio y con elevación sutil — */
+.btn-google {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.btn-google:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+}
+
+/* — Tarjeta de login: más aire y sombra coherente — */
+.login-card {
+    background: var(--card-bg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+}
+.login-subtitle { color: var(--text-secondary); }
+.login-desc { color: var(--text-secondary); }
+
+/* — Opciones del test: más táctiles, mejor feedback — */
+.opcion {
+    border-width: 1.5px;
+    transition: border-color .15s ease, background .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+.opcion:hover {
+    border-color: var(--primary);
+    background: var(--bg-secondary);
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+}
+.opcion.disabled:hover { transform: none; box-shadow: none; }
+.opcion.selected { background: var(--bg-tertiary); }
+.opcion.correcta { background: var(--success-bg); }
+.opcion.incorrecta { background: var(--danger-bg); }
+.opcion-letra {
+    background: var(--bg-tertiary);
+    transition: background .15s ease, color .15s ease;
+}
+
+/* — Acento dorado para lo competitivo/destacado — */
+.badge-semanal.amarillo {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: #fff;
+}
+.medalla, .ranking-fila.es-yo { /* resalte del usuario en rankings */ }
+.ranking-fila.es-yo {
+    box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* — Respeto a "reduce motion" — */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
 }
