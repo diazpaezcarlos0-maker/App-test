@@ -3,6 +3,7 @@
 // ============================================
 let estadoApp = {
     modo: null,
+    submodo: null, // 'test' | 'estudio' — distingue las dos variantes del motor de estudio
     temasActivos: [],
     preguntasActuales: [],
     indicePregunta: 0,
@@ -325,6 +326,7 @@ function iniciarModoEstudio() {
 
 function _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas) {
     estadoApp.modo = 'estudio';
+    estadoApp.submodo = 'test';
     estadoApp.temasActivos = temasSeleccionados;
     estadoApp.indicePregunta = 0;
     estadoApp.respuestas = [];
@@ -364,6 +366,84 @@ function _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas)
     preguntasDisponibles = mezclarArray(preguntasDisponibles);
     estadoApp.preguntasActuales = preguntasDisponibles.slice(0, Math.min(cantidad, preguntasDisponibles.length));
     
+    iniciarTest();
+}
+
+// ============================================
+// MODO ESTUDIO POR TEMA (un tema · una a una · sin límite)
+// Eliges un tema y vas respondiendo a tu ritmo. Cada respuesta se guarda en
+// Supabase al instante (ver seleccionarOpcion → guardarRespuestaEnSupabase),
+// así que puedes parar cuando quieras y las preguntas respondidas quedan como
+// vistas. Al volver, continúa por las que aún no has visto.
+// ============================================
+function mostrarModoEstudioTema() {
+    mostrarPantalla('modoEstudioTema');
+    renderizarTemasEstudio();
+}
+
+function renderizarTemasEstudio() {
+    const container = document.getElementById('temasEstudioLista');
+    if (!container) return;
+    container.innerHTML = '';
+
+    temas.forEach(tema => {
+        const total = tema.preguntas.length;
+        const vistas = estadoApp.preguntasVistas.filter(id => id.startsWith(tema.id + '-')).length;
+        const nuevas = Math.max(0, total - vistas);
+        const completado = total > 0 ? Math.round((vistas / total) * 100) : 0;
+        const icono = tema.icono || '📚';
+
+        const div = document.createElement('div');
+        div.className = 'tema-checkbox tema-estudio-item';
+        div.setAttribute('role', 'button');
+        div.tabIndex = 0;
+        div.innerHTML = `
+            <div class="tema-info">
+                <div class="tema-nombre"><span style="font-size:1.3em;margin-right:.5rem;">${icono}</span>${tema.nombre}</div>
+                <div class="tema-stats">${nuevas > 0 ? `${nuevas} nuevas · ` : '✓ Completado · '}${vistas}/${total} vistas (${completado}%)</div>
+                <div class="barra-progreso-tema"><span style="width:${completado}%;"></span></div>
+            </div>
+            <span class="tema-estudio-flecha">${nuevas > 0 ? '▶' : '↻'}</span>
+        `;
+
+        const arrancar = () => iniciarEstudioTema(tema.id);
+        div.addEventListener('click', arrancar);
+        div.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); arrancar(); }
+        });
+        container.appendChild(div);
+    });
+}
+
+function iniciarEstudioTema(temaId) {
+    const tema = temas.find(t => t.id === temaId);
+    if (!tema) { alert('Tema no encontrado.'); return; }
+
+    const todas = tema.preguntas.map((p, index) => ({
+        ...p,
+        temaId: tema.id,
+        temaNombre: tema.nombre,
+        idPregunta: `${tema.id}-${index}`
+    }));
+
+    // Preguntas nuevas (no vistas) primero; si no quedan, repasar todas
+    const nuevas = todas.filter(p => !estadoApp.preguntasVistas.includes(p.idPregunta));
+    let lista;
+    if (nuevas.length > 0) {
+        lista = mezclarArray(nuevas);
+    } else {
+        if (!confirm('Ya has visto todas las preguntas de este tema.\n¿Quieres repasarlas todas otra vez?')) return;
+        lista = mezclarArray(todas);
+    }
+
+    estadoApp.modo = 'estudio';
+    estadoApp.submodo = 'estudio';
+    estadoApp.temasActivos = [temaId];
+    estadoApp.indicePregunta = 0;
+    estadoApp.respuestas = [];
+    estadoApp.preguntasActuales = lista;
+    estadoApp.tiempoInicio = Date.now();
+
     iniciarTest();
 }
 
@@ -474,11 +554,13 @@ function iniciarTest() {
     mostrarPantalla('pantallaTest');
     const nombresModo = {
         'estudio': 'Modo Estudio',
+        'test': 'Modo Test',
         'simulacro': 'Modo Simulacro',
         'simulacro_semanal': 'Simulacro Semanal',
         'supuesto': 'Supuesto Práctico'
     };
-    document.getElementById('infoModo').textContent = nombresModo[estadoApp.modo] || 'Test';
+    const claveModo = estadoApp.submodo || estadoApp.modo;
+    document.getElementById('infoModo').textContent = nombresModo[claveModo] || 'Test';
     
     // Inicializar opciones mezcladas para todas las preguntas
     inicializarOpcionesMezcladas();
@@ -792,7 +874,10 @@ function abandonarTest() {
         alert('No se puede abandonar el simulacro semanal a medias. Tienes que terminarlo.');
         return;
     }
-    if (confirm('¿Seguro que quieres abandonar el test?')) {
+    const mensaje = estadoApp.submodo === 'estudio'
+        ? '¿Salir del estudio? Tus respuestas ya se han guardado, puedes continuar otro día.'
+        : '¿Seguro que quieres abandonar el test?';
+    if (confirm(mensaje)) {
         volverDashboard();
     }
 }
