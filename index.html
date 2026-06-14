@@ -4,27 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <!-- SEO básico -->
-    <title>OPOTEST Madrid - Tests oposiciones Administrativo y Auxiliar Adminsitrativo Madrid</title>
-    <meta name="description" content="Más de 4.000 preguntas tipo test para preparar tu oposición de administrativo/a o auxiliar administrativo/a de madrid. Estadísticas, ranking y modo simulacro.">
+    <title>OPOTEST Madrid - Tests oposiciones Administrativo y Auxiliar Administrativo Madrid</title>
+    <meta name="description" content="Más de 4.000 preguntas tipo test para preparar tu oposición de administrativo/a o auxiliar administrativo/a de Madrid. Estadísticas, ranking y modo simulacro.">
     <meta name="keywords" content="oposición ayuntamiento madrid, test administrativa, C1 promoción interna, oposición Madrid, test oposiciones, preguntas oposición ayto madrid">
     <meta name="author" content="OPOTEST">
     <link rel="canonical" href="https://opotestmadrid.es/">
     
     <!-- Open Graph (para que se vea bien al compartir en WhatsApp, Telegram, redes) -->
     <meta property="og:title" content="OPOTEST Madrid - Tests oposición Ayuntamiento C1">
-    <meta property="og:description" content="Más de 3.000 preguntas para preparar la oposición de Administrativa C1 del Ayuntamiento de Madrid.">
+    <meta property="og:description" content="Más de 4.000 preguntas para preparar la oposición de Administrativo del Ayuntamiento de Madrid.">
     <meta property="og:url" content="https://opotestmadrid.es/">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="es_ES">
+    <meta property="og:image" content="https://opotestmadrid.es/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="OPOTEST Madrid">
-    <meta name="twitter:description" content="Tests para la oposición de Administrativa C1 del Ayuntamiento de Madrid.">
+    <meta name="twitter:description" content="Tests para la oposición de Administrativo del Ayuntamiento de Madrid.">
+    <meta name="twitter:image" content="https://opotestmadrid.es/og-image.png">
     
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="parche-supuestos.css">
@@ -514,5 +518,16 @@
     <script src="app.js"></script>
     <script src="supuestos.js"></script>
     <script src="auth.js"></script>
+
+    <!-- Registro del Service Worker (PWA) -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW registrado:', reg.scope))
+            .catch(err => console.warn('SW no registrado:', err));
+        });
+      }
+    </script>
 </body>
 </html>
