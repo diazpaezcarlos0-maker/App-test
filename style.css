@@ -4513,3 +4513,13 @@ select:focus-visible {
 }
 [data-theme="dark"] .btn-instalar { color: var(--accent); }
 [data-theme="dark"] .btn-instalar:hover { color: #1a1208; }
+
+/* Banner de instalar en el dashboard */
+.instalar-banner {
+    max-width: 900px;
+    margin: 0 auto 1.5rem;
+    padding: 0 1rem;
+}
+.instalar-banner .btn-instalar {
+    margin-top: 0;
+}
