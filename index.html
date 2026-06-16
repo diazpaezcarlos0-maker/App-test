@@ -220,6 +220,12 @@
                 <p>Examen oficial sin ver respuestas</p>
             </button>
 
+            <button class="menu-card" onclick="mostrarMazos()">
+                <div class="menu-icon">🃏</div>
+                <h3>Flashcards</h3>
+                <p>Repaso con curva del olvido (tipo Anki)</p>
+            </button>
+
             <button class="menu-card" onclick="mostrarPreguntasGuardadas()">
                 <div class="menu-icon">⭐</div>
                 <h3>Preguntas Guardadas</h3>
@@ -529,9 +535,95 @@
             <div class="acciones-resultado">
                 <button class="btn-secondary" onclick="volverDashboard()">Volver al inicio</button>
                 <button class="btn-primary" onclick="repasarFalladas()">Repasar falladas</button>
+                <button class="btn-secondary" onclick="anadirFalladasAlMazo()">🃏 Añadir falladas al mazo</button>
             </div>
         </div>
     </div>
+
+    <!-- ====================================================== -->
+    <!-- PANTALLA: FLASHCARDS · MAZOS POR TEMA                  -->
+    <!-- ====================================================== -->
+    <div id="mazoTemas" class="screen">
+        <header class="screen-header">
+            <button class="btn-back" onclick="volverDashboard()">← Volver</button>
+            <h2>🃏 Flashcards</h2>
+        </header>
+        <div class="config-container">
+            <p style="text-align:center; margin:0 0 16px; color:var(--text-secondary);">
+                Repaso espaciado con curva del olvido. Elige un tema para repasar las tarjetas pendientes.
+            </p>
+            <button class="btn-primary btn-large" style="margin-bottom:20px;" onclick="nuevaTarjeta(temas[0] && temas[0].id)">
+                ➕ Nueva tarjeta
+            </button>
+            <div class="temas-grid" id="mazosLista"></div>
+        </div>
+    </div>
+
+    <!-- PANTALLA: FLASHCARDS · ESTUDIO -->
+    <div id="estudioFlashcards" class="screen">
+        <header class="screen-header">
+            <button class="btn-back" onclick="mostrarMazos()">← Salir</button>
+            <h2>🃏 Repaso</h2>
+        </header>
+        <div class="flashcard-sesion">
+            <div class="flashcard-progreso" id="flashcardProgreso"></div>
+            <div class="flashcard-tarjeta" id="flashcardContenido"></div>
+            <div class="flashcard-controles" id="flashcardControles"></div>
+        </div>
+    </div>
+
+    <!-- PANTALLA: FLASHCARDS · CREAR / EDITAR -->
+    <div id="formularioFlashcard" class="screen">
+        <header class="screen-header">
+            <button class="btn-back" onclick="mostrarMazos()">← Cancelar</button>
+            <h2 id="formFlashTitulo">Nueva tarjeta</h2>
+        </header>
+        <div class="config-container form-flashcard">
+            <label class="form-label">Tipo de tarjeta</label>
+            <div class="form-tipo">
+                <label><input type="radio" name="formFlashTipo" value="basica" checked onchange="cambiarTipoFormulario('basica')"> Básica (anverso / reverso)</label>
+                <label><input type="radio" name="formFlashTipo" value="test" onchange="cambiarTipoFormulario('test')"> Test (con opciones)</label>
+            </div>
+
+            <label class="form-label">Tema</label>
+            <select id="formFlashTema" class="form-select"></select>
+
+            <div id="formFlashOficialWrap" style="display:none; margin-top:0.75rem;">
+                <label class="form-check">
+                    <input type="checkbox" id="formFlashOficial">
+                    ⭐ Tarjeta oficial (la verán todos los usuarios)
+                </label>
+            </div>
+
+            <label class="form-label" id="lblAnverso">Anverso (pregunta o concepto)</label>
+            <textarea id="formFlashAnverso" class="form-textarea" rows="3" placeholder="Ej.: ¿Qué establece el art. 14 de la Constitución?"></textarea>
+
+            <label class="form-label" id="lblReverso">Reverso (respuesta)</label>
+            <textarea id="formFlashReverso" class="form-textarea" rows="3" placeholder="Ej.: La igualdad ante la ley sin discriminación."></textarea>
+
+            <div id="formFlashBloqueTest" style="display:none;">
+                <label class="form-label">Opciones (marca la correcta)</label>
+                <div class="form-opcion-fila">
+                    <input type="radio" name="formFlashCorrecta" value="0" checked>
+                    <input type="text" id="formFlashOp0" class="form-input" placeholder="Opción A">
+                </div>
+                <div class="form-opcion-fila">
+                    <input type="radio" name="formFlashCorrecta" value="1">
+                    <input type="text" id="formFlashOp1" class="form-input" placeholder="Opción B">
+                </div>
+                <div class="form-opcion-fila">
+                    <input type="radio" name="formFlashCorrecta" value="2">
+                    <input type="text" id="formFlashOp2" class="form-input" placeholder="Opción C">
+                </div>
+            </div>
+
+            <div class="form-acciones">
+                <button class="btn-primary btn-large" onclick="guardarTarjeta()">Guardar tarjeta</button>
+                <button class="btn-secondary" id="formFlashBorrar" style="display:none;" onclick="eliminarTarjeta(tarjetaEditando)">🗑️ Borrar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="data-loader.js"></script>
@@ -543,6 +635,7 @@
     <script src="comentarios.js"></script>
     <script src="app.js"></script>
     <script src="supuestos.js"></script>
+    <script src="flashcards.js"></script>
     <script src="auth.js"></script>
 
     <!-- Registro del Service Worker (PWA) -->
