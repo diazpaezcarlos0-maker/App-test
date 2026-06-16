@@ -4696,3 +4696,126 @@ select:focus-visible {
     background: var(--accent);
     border-color: var(--accent);
 }
+
+/* ============================================
+   FLASHCARDS v3 · Estudio estilo Anki + contadores de color
+   ============================================ */
+/* Colores de los contadores (lista de mazos y sesión) */
+.cnt-nuevas  { color: var(--primary); }   /* azul · no respondidas */
+.cnt-otravez { color: var(--danger);  }   /* rojo · "otra vez" */
+.cnt-repaso  { color: var(--success); }   /* verde · para repasar */
+.cnt-sep     { color: var(--text-muted); margin: 0 4px; font-weight: 400; }
+
+/* Contador en la lista de mazos (derecha de cada tema) */
+.mazo-contador {
+    flex-shrink: 0;
+    font-weight: 800;
+    font-size: 1.05rem;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Sesión de estudio: pregunta arriba, controles abajo */
+.flashcard-sesion {
+    max-width: 760px;
+    margin: 0 auto;
+    min-height: calc(100vh - 72px);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+}
+.flashcard-tarjeta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2.5rem 1.25rem 1.5rem;
+    gap: 1.1rem;
+}
+.fc-pregunta {
+    font-size: 1.35rem;
+    line-height: 1.5;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+}
+.fc-divider {
+    width: 100%;
+    max-width: 620px;
+    height: 1px;
+    background: var(--border);
+    margin: 0.4rem 0;
+}
+.fc-respuesta {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+}
+.flashcard-opciones { width: 100%; max-width: 600px; margin: 0.4rem auto 0; }
+
+/* Pie pegado abajo */
+.flashcard-pie {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    padding: 0.75rem 1rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+}
+.flashcard-gestion-bar { display: flex; justify-content: center; gap: 0.6rem; flex-wrap: wrap; }
+.flashcard-gestion-bar:empty { display: none; }
+
+/* Contador nuevas + otra vez + repaso (subrayado = categoría actual) */
+.flashcard-contador {
+    font-size: 1rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.flashcard-contador .activo { text-decoration: underline; text-underline-offset: 4px; }
+
+/* Botón "Mostrar respuesta" (pill neutro) */
+.btn-mostrar-respuesta {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 0.7rem 2.2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background .15s ease, transform .12s ease;
+}
+.btn-mostrar-respuesta:hover { background: var(--border); transform: translateY(-1px); }
+
+/* Botones de calificación: intervalo encima, pill de color debajo */
+.flashcard-calificacion {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    grid-template-columns: none; /* anula la versión antigua en grid */
+}
+.fc-cal-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.fc-cal-int { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+.fc-cal {
+    min-width: 84px;
+    padding: 0.6rem 1.1rem;
+    border: none;
+    border-radius: 99px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: transform .12s ease, filter .15s ease;
+}
+.fc-cal:hover { transform: translateY(-1px); filter: brightness(1.08); }
+.fc-cal.cal-again { background: var(--danger);  }   /* Otra vez · rojo */
+.fc-cal.cal-hard  { background: var(--warning); }   /* Difícil · naranja */
+.fc-cal.cal-good  { background: var(--success); }   /* Bien · verde */
+.fc-cal.cal-easy  { background: var(--primary); }   /* Fácil · azul */
