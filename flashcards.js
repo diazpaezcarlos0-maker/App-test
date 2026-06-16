@@ -546,10 +546,64 @@ async function eliminarTarjeta(id) {
 }
 
 // ------------------------------------------------------------
-// INTEGRACIÓN CON LOS TESTS
-// Añade al mazo (como tarjetas tipo 'test', con curva del olvido)
-// las preguntas FALLADAS del último test realizado.
+// GUARDAR LA PREGUNTA ACTUAL DEL TEST EN EL MAZO (botón 🃏 de la cabecera)
+// Funciona en Modo Estudio, Modo Test y Simulacro. Crea una tarjeta tipo
+// 'test' personal en el mazo del tema correspondiente, de forma automática.
 // ------------------------------------------------------------
+async function guardarPreguntaActualEnMazo() {
+    if (!currentUser) { alert('Inicia sesión para guardar preguntas en tu mazo.'); return; }
+    if (!estadoApp || !Array.isArray(estadoApp.preguntasActuales)) return;
+    const p = estadoApp.preguntasActuales[estadoApp.indicePregunta];
+    if (!p) { alert('No hay pregunta activa.'); return; }
+
+    const idPreg = p.idPregunta || `${p.temaId}-${(p.texto || '').slice(0, 40)}`;
+
+    // ¿ya está en el mazo?
+    if (!misFlashcards.length) await cargarFlashcards();
+    if (misFlashcards.some(c => c.pregunta_id === idPreg)) {
+        marcarBotonMazo('ya');
+        return;
+    }
+
+    const registro = {
+        user_id: currentUser.id,
+        es_oficial: false,
+        convocatoria_id: window.convocatoriaActualId || null,
+        tema_id: p.temaId != null ? String(p.temaId) : null,
+        tema_nombre: p.temaNombre || null,
+        tipo: 'test',
+        anverso: p.texto,
+        reverso: p.explicacion || null,
+        opciones: p.opciones,
+        respuesta_correcta: p.correcta,
+        origen: 'test',
+        pregunta_id: idPreg
+    };
+
+    try {
+        const { error } = await sb.from('flashcards').insert(registro);
+        if (error && error.code !== '23505') throw error; // 23505 = ya existía (índice único)
+        await cargarFlashcards();
+        marcarBotonMazo('ok');
+    } catch (e) {
+        console.error('Error guardando en el mazo:', e);
+        alert('No se pudo guardar la pregunta en el mazo.');
+    }
+}
+
+// Feedback visual breve del botón
+function marcarBotonMazo(estado) {
+    const btn = document.getElementById('btnGuardarMazo');
+    if (!btn) return;
+    btn.classList.add('guardada');
+    btn.textContent = '✅';
+    btn.title = (estado === 'ya') ? 'Esta pregunta ya estaba en tu mazo' : '¡Guardada en tu mazo!';
+    setTimeout(() => {
+        btn.textContent = '🃏';
+        btn.classList.remove('guardada');
+        btn.title = 'Guardar esta pregunta en tu mazo de Flashcards';
+    }, 1500);
+}
 async function anadirFalladasAlMazo() {
     if (!currentUser) { alert('Inicia sesión para usar el mazo de repaso.'); return; }
     if (!estadoApp || !Array.isArray(estadoApp.preguntasActuales)) { alert('No hay test reciente.'); return; }
