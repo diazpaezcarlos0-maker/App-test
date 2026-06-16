@@ -92,9 +92,9 @@ function renderizarMazos() {
     temas.forEach(tema => {
         const cards = cardsDeTema(tema.id);
         const total = cards.length;
-        const nuevas = cards.filter(c => !c._prog.id).length;
-        const pendientes = cards.filter(c => c._prog.id && estaPendiente(c)).length;
-        const paraHoy = cards.filter(estaPendiente).length;
+        const nuevas  = cards.filter(c => !c._prog.id).length;
+        const otraVez = cards.filter(c => c._prog.id && c._prog.repeticiones === 0).length;
+        const repaso  = cards.filter(c => c._prog.id && c._prog.repeticiones >= 1 && estaPendiente(c)).length;
         const oficiales = cards.filter(c => c.es_oficial).length;
         const icono = tema.icono || '🃏';
 
@@ -103,16 +103,17 @@ function renderizarMazos() {
         div.setAttribute('role', 'button');
         div.tabIndex = 0;
 
-        const chip = paraHoy > 0
-            ? `<span class="mazo-chip activo">${paraHoy} para repasar</span>`
-            : (total > 0 ? '<span class="mazo-chip">Al día ✓</span>' : '<span class="mazo-chip vacio">Sin tarjetas</span>');
+        const contador = `<div class="mazo-contador">` +
+            `<span class="cnt-nuevas">${nuevas}</span><span class="cnt-sep">+</span>` +
+            `<span class="cnt-otravez">${otraVez}</span><span class="cnt-sep">+</span>` +
+            `<span class="cnt-repaso">${repaso}</span></div>`;
 
         div.innerHTML = `
             <div class="tema-info">
                 <div class="tema-nombre"><span style="font-size:1.3em;margin-right:.5rem;">${fcEscape(icono)}</span>${fcEscape(tema.nombre)}</div>
-                <div class="tema-stats">${total} tarjetas · ${nuevas} nuevas · ${pendientes} pendientes${oficiales ? ` · ${oficiales} oficiales` : ''}</div>
+                <div class="tema-stats">${total} tarjetas${oficiales ? ` · ${oficiales} oficiales` : ''}</div>
             </div>
-            ${chip}
+            ${contador}
         `;
         const arrancar = () => {
             if (total === 0) {
@@ -155,16 +156,16 @@ function mostrarTarjetaActual() {
     const card = sesionRepaso.cards[sesionRepaso.indice];
     const contenido = document.getElementById('flashcardContenido');
     const controles = document.getElementById('flashcardControles');
-    const progreso = document.getElementById('flashcardProgreso');
+    const gestionEl = document.getElementById('flashcardGestion');
+    const contadorEl = document.getElementById('flashcardContador');
 
     if (!card) { finalizarRepaso(); return; }
 
-    if (progreso) {
-        progreso.textContent = `${sesionRepaso.temaNombre} · ${sesionRepaso.indice + 1} / ${sesionRepaso.cards.length}`;
-    }
-
     contenido.innerHTML = '';
     controles.innerHTML = '';
+    if (gestionEl) gestionEl.innerHTML = '';
+    renderContadorSesion(contadorEl);
+    if (gestionEl) gestionEl.appendChild(barraGestion(card));
 
     if (card.tipo === 'test') {
         renderTarjetaTest(card, contenido, controles);
@@ -173,34 +174,65 @@ function mostrarTarjetaActual() {
     }
 }
 
+// Categoría de una tarjeta: nueva (sin repasar) / otra vez (relapso) / repaso
+function categoriaCard(card) {
+    if (!card._prog || !card._prog.id) return 'nuevas';
+    if (card._prog.repeticiones === 0) return 'otraVez';
+    return 'repaso';
+}
+
+function contadoresSesion() {
+    const c = { nuevas: 0, otraVez: 0, repaso: 0 };
+    for (let i = sesionRepaso.indice; i < sesionRepaso.cards.length; i++) {
+        c[categoriaCard(sesionRepaso.cards[i])]++;
+    }
+    return c;
+}
+
+// Contador azul(nuevas) + rojo(otra vez) + verde(repaso); subraya la categoría actual
+function renderContadorSesion(el) {
+    if (!el) return;
+    const c = contadoresSesion();
+    const actual = sesionRepaso.cards[sesionRepaso.indice];
+    const cat = actual ? categoriaCard(actual) : null;
+    el.innerHTML =
+        `<span class="cnt-nuevas ${cat === 'nuevas' ? 'activo' : ''}">${c.nuevas}</span>` +
+        `<span class="cnt-sep">+</span>` +
+        `<span class="cnt-otravez ${cat === 'otraVez' ? 'activo' : ''}">${c.otraVez}</span>` +
+        `<span class="cnt-sep">+</span>` +
+        `<span class="cnt-repaso ${cat === 'repaso' ? 'activo' : ''}">${c.repaso}</span>`;
+}
+
 // --- Tarjeta básica (anverso / reverso) ---
 function renderTarjetaBasica(card, contenido, controles) {
-    const cara = document.createElement('div');
-    cara.className = 'flashcard-cara anverso';
-    cara.innerHTML = `<div class="flashcard-etiqueta">Anverso</div><div class="flashcard-texto">${fcEscape(card.anverso)}</div>`;
-    contenido.appendChild(cara);
+    const preg = document.createElement('div');
+    preg.className = 'fc-pregunta';
+    preg.textContent = card.anverso;
+    contenido.appendChild(preg);
 
-    const btnVoltear = document.createElement('button');
-    btnVoltear.className = 'btn-primary btn-large';
-    btnVoltear.textContent = 'Mostrar respuesta';
-    btnVoltear.onclick = () => {
-        const rev = document.createElement('div');
-        rev.className = 'flashcard-cara reverso';
-        rev.innerHTML = `<div class="flashcard-etiqueta">Reverso</div><div class="flashcard-texto">${fcEscape(card.reverso || '—')}</div>`;
-        contenido.appendChild(rev);
+    const btn = document.createElement('button');
+    btn.className = 'btn-mostrar-respuesta';
+    btn.textContent = 'Mostrar respuesta';
+    btn.onclick = () => {
+        const sep = document.createElement('div');
+        sep.className = 'fc-divider';
+        contenido.appendChild(sep);
+        const resp = document.createElement('div');
+        resp.className = 'fc-respuesta';
+        resp.textContent = card.reverso || '—';
+        contenido.appendChild(resp);
         controles.innerHTML = '';
         controles.appendChild(barraCalificacion(card));
     };
-    controles.appendChild(btnVoltear);
-    controles.appendChild(barraGestion(card));
+    controles.appendChild(btn);
 }
 
 // --- Tarjeta tipo test ---
 function renderTarjetaTest(card, contenido, controles) {
-    const enun = document.createElement('div');
-    enun.className = 'flashcard-cara anverso';
-    enun.innerHTML = `<div class="flashcard-etiqueta">Pregunta</div><div class="flashcard-texto">${fcEscape(card.anverso)}</div>`;
-    contenido.appendChild(enun);
+    const preg = document.createElement('div');
+    preg.className = 'fc-pregunta';
+    preg.textContent = card.anverso;
+    contenido.appendChild(preg);
 
     const opcionesBox = document.createElement('div');
     opcionesBox.className = 'flashcard-opciones';
@@ -221,10 +253,12 @@ function renderTarjetaTest(card, contenido, controles) {
             if (i !== correcta) b.classList.add('incorrecta');
 
             if (card.reverso) {
+                const sep = document.createElement('div');
+                sep.className = 'fc-divider';
+                contenido.appendChild(sep);
                 const exp = document.createElement('div');
-                exp.className = 'flashcard-explicacion';
-                exp.innerHTML = `<strong>Explicación:</strong> `;
-                exp.appendChild(document.createTextNode(card.reverso));
+                exp.className = 'fc-respuesta';
+                exp.textContent = card.reverso;
                 contenido.appendChild(exp);
             }
             controles.innerHTML = '';
@@ -234,25 +268,31 @@ function renderTarjetaTest(card, contenido, controles) {
     });
 
     contenido.appendChild(opcionesBox);
-    controles.appendChild(barraGestion(card));
 }
 
-// --- Barra de calificación SM-2 (4 botones) ---
+// --- Barra de calificación SM-2 (4 botones de color, intervalo encima) ---
 function barraCalificacion(card) {
     const wrap = document.createElement('div');
     wrap.className = 'flashcard-calificacion';
     const botones = [
-        { cal: 'again', txt: 'Otra vez', clase: 'cal-again', sub: vistaPrevia(card, 'again') },
-        { cal: 'hard',  txt: 'Difícil',  clase: 'cal-hard',  sub: vistaPrevia(card, 'hard') },
-        { cal: 'good',  txt: 'Bien',     clase: 'cal-good',  sub: vistaPrevia(card, 'good') },
-        { cal: 'easy',  txt: 'Fácil',    clase: 'cal-easy',  sub: vistaPrevia(card, 'easy') }
+        { cal: 'again', txt: 'Otra vez', clase: 'cal-again' },  // rojo
+        { cal: 'hard',  txt: 'Difícil',  clase: 'cal-hard'  },  // naranja
+        { cal: 'good',  txt: 'Bien',     clase: 'cal-good'  },  // verde
+        { cal: 'easy',  txt: 'Fácil',    clase: 'cal-easy'  }   // azul
     ];
     botones.forEach(b => {
+        const col = document.createElement('div');
+        col.className = 'fc-cal-col';
+        const lbl = document.createElement('span');
+        lbl.className = 'fc-cal-int';
+        lbl.textContent = vistaPrevia(card, b.cal);
         const btn = document.createElement('button');
-        btn.className = 'btn-calificar ' + b.clase;
-        btn.innerHTML = `<span>${b.txt}</span><small>${b.sub}</small>`;
+        btn.className = 'fc-cal ' + b.clase;
+        btn.textContent = b.txt;
         btn.onclick = () => calificarTarjeta(b.cal);
-        wrap.appendChild(btn);
+        col.appendChild(lbl);
+        col.appendChild(btn);
+        wrap.appendChild(col);
     });
     return wrap;
 }
@@ -260,7 +300,7 @@ function barraCalificacion(card) {
 // Texto del intervalo que tocaría con cada botón (informativo)
 function vistaPrevia(card, calidad) {
     const r = programarSRS(card, calidad);
-    if (r.intervalo === 0) return '<10 min';
+    if (r.intervalo === 0) return '10 min';
     if (r.intervalo === 1) return '1 día';
     if (r.intervalo < 30) return r.intervalo + ' días';
     const meses = Math.round(r.intervalo / 30);
@@ -386,8 +426,10 @@ async function calificarTarjeta(calidad) {
 function finalizarRepaso() {
     const contenido = document.getElementById('flashcardContenido');
     const controles = document.getElementById('flashcardControles');
-    const progreso = document.getElementById('flashcardProgreso');
-    if (progreso) progreso.textContent = '¡Sesión completada!';
+    const gestionEl = document.getElementById('flashcardGestion');
+    const contadorEl = document.getElementById('flashcardContador');
+    if (gestionEl) gestionEl.innerHTML = '';
+    if (contadorEl) contadorEl.innerHTML = '';
     contenido.innerHTML = `
         <div class="flashcard-fin">
             <div style="font-size:3rem;">🎉</div>
