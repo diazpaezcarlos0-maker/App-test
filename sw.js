@@ -12,7 +12,7 @@
 //    (v1 → v2 → v3...). Eso invalida la caché vieja y obliga a refrescar.
 // ============================================
 
-const CACHE_VERSION = 'opotest-v1';
+const CACHE_VERSION = 'opotest-v2';
 const APP_SHELL = [
   '/',
   '/index.html',
