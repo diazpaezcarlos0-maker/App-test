@@ -299,6 +299,9 @@ function barraGestion(card) {
 // ------------------------------------------------------------
 // ALGORITMO SM-2 (curva del olvido, estilo Anki)
 // ------------------------------------------------------------
+// Tope máximo de intervalo (en días): las tarjetas no se programan más lejos de esto
+const MAX_INTERVALO_DIAS = 60; // ~2 meses
+
 function programarSRS(card, calidad) {
     const prog = card._prog || { repeticiones: 0, factor_facilidad: 2.5, intervalo: 0 };
     let ef = prog.factor_facilidad || 2.5;
@@ -324,6 +327,7 @@ function programarSRS(card, calidad) {
             if (calidad === 'easy') mult = ef * 1.3;
             intervalo = Math.max(1, Math.round(intervalo * mult));
         }
+        intervalo = Math.min(intervalo, MAX_INTERVALO_DIAS); // tope de 2 meses
         rep += 1;
         dueMs = Date.now() + intervalo * 24 * 60 * 60 * 1000;
     }
