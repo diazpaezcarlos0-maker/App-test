@@ -106,9 +106,13 @@ async function obtenerRanking(periodo = 'total') {
     };
     const campoAcert = mapeoCampo[periodo] || 'aciertos';
     
+    // El % de acierto se calcula con el histórico TOTAL (aciertos / respondidas),
+    // no con los aciertos del período, para que tenga sentido. Por eso pedimos
+    // 'aciertos' (total) además del campo del período elegido.
+    const campoExtra = (campoAcert === 'aciertos') ? '' : ', aciertos';
     let query = sb
         .from('global_ranking_v2')
-        .select(`user_id, nombre, ${campoAcert}, total_respondidas, porcentaje, convocatoria_id`)
+        .select(`user_id, nombre, ${campoAcert}${campoExtra}, total_respondidas, convocatoria_id`)
         .gt(campoAcert, 0)
         .order(campoAcert, { ascending: false })
         .order('total_respondidas', { ascending: true })
@@ -124,9 +128,11 @@ async function obtenerRanking(periodo = 'total') {
     }
     
     return data.map((row, i) => {
-        const acertadas = row[campoAcert] || 0;
-        const respondidas = row.total_respondidas || 0;
-        const porcentaje = respondidas > 0 ? Math.round(100 * acertadas / respondidas) : 0;
+        const acertadas = row[campoAcert] || 0;            // del período (orden del ranking)
+        const respondidas = row.total_respondidas || 0;     // histórico total
+        const aciertosTotal = (row.aciertos != null) ? row.aciertos : acertadas;
+        // % de acierto GLOBAL del jugador (no del período), para que sea coherente
+        const porcentaje = respondidas > 0 ? Math.round(100 * aciertosTotal / respondidas) : 0;
         return {
             posicion: i + 1,
             nombre: row.nombre,
