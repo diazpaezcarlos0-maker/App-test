@@ -644,11 +644,6 @@ function mostrarPregunta() {
     actualizarBotonGuardar();
     actualizarBotonesNavegacion();
     renderizarMiniMapa();
-    
-    if (pregunta.idPregunta && !estadoApp.preguntasVistas.includes(pregunta.idPregunta)) {
-        estadoApp.preguntasVistas.push(pregunta.idPregunta);
-        guardarPreguntasVistas();
-    }
 }
 
 function seleccionarOpcion(indiceOpcion) {
@@ -662,6 +657,12 @@ function seleccionarOpcion(indiceOpcion) {
         correcta: pregunta.correcta,
         esCorrecta
     };
+
+    // Marcar como vista SOLO al responder
+    if (pregunta.idPregunta && !estadoApp.preguntasVistas.includes(pregunta.idPregunta)) {
+        estadoApp.preguntasVistas.push(pregunta.idPregunta);
+        guardarPreguntasVistas();
+    }
     
     // Guardar en Supabase (asíncrono)
     guardarRespuestaEnSupabase(pregunta, indiceOpcion, esCorrecta, 'estudio')
@@ -708,6 +709,12 @@ function seleccionarOpcionSimulacro(indiceOpcion) {
         correcta: pregunta.correcta,
         esCorrecta
     };
+
+    // Marcar como vista SOLO al responder
+    if (pregunta.idPregunta && !estadoApp.preguntasVistas.includes(pregunta.idPregunta)) {
+        estadoApp.preguntasVistas.push(pregunta.idPregunta);
+        guardarPreguntasVistas();
+    }
     
     renderizarMiniMapa();
 }
