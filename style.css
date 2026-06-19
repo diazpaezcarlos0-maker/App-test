@@ -4871,3 +4871,37 @@ select:focus-visible {
     opacity: 0.45;
     cursor: not-allowed;
 }
+
+/* Selector de cantidad por sesión */
+.opc-cantidad { margin: 0 0 1.25rem; }
+.opc-cantidad-lbl {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 0.6rem;
+}
+.opc-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+.opc-chip {
+    min-width: 3rem;
+    padding: 0.5rem 0.9rem;
+    border: 1.5px solid var(--border);
+    border-radius: 99px;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+.opc-chip:hover { border-color: var(--primary); }
+.opc-chip.activo {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
