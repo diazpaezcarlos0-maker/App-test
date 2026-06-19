@@ -156,6 +156,7 @@ function renderizarMazos() {
 // OPCIONES DE ESTUDIO POR TEMA (estilo "Custom Study" de Anki)
 // ------------------------------------------------------------
 let opcTemaActual = null;
+let opcCantidad = 0; // 0 = todas
 
 function abrirOpcionesTema(temaId) {
     opcTemaActual = temaId;
@@ -182,6 +183,29 @@ function abrirOpcionesTema(temaId) {
                         `<span class="cnt-otravez">${nOtraVez}</span><span class="cnt-sep">+</span>` +
                         `<span class="cnt-repaso">${nRepaso}</span>`;
     cont.appendChild(counter);
+
+    // Selector de cantidad por sesión
+    const cantWrap = document.createElement('div');
+    cantWrap.className = 'opc-cantidad';
+    const lbl = document.createElement('div');
+    lbl.className = 'opc-cantidad-lbl';
+    lbl.textContent = 'Cantidad por sesión';
+    cantWrap.appendChild(lbl);
+    const chips = document.createElement('div');
+    chips.className = 'opc-chips';
+    [10, 20, 30, 50, 100, 0].forEach(n => {
+        const chip = document.createElement('button');
+        chip.className = 'opc-chip' + (n === opcCantidad ? ' activo' : '');
+        chip.textContent = (n === 0) ? 'Todas' : String(n);
+        chip.onclick = () => {
+            opcCantidad = n;
+            chips.querySelectorAll('.opc-chip').forEach(c => c.classList.remove('activo'));
+            chip.classList.add('activo');
+        };
+        chips.appendChild(chip);
+    });
+    cantWrap.appendChild(chips);
+    cont.appendChild(cantWrap);
 
     cont.appendChild(botonEstudio('▶  Estudiar pendientes', nPend, 'pendientes', 'btn-primary btn-large'));
 
@@ -255,7 +279,10 @@ function iniciarRepaso(temaId, filtro) {
         [baraja[i], baraja[j]] = [baraja[j], baraja[i]];
     }
 
-    sesionRepaso = { cards: baraja, indice: 0, temaId, temaNombre: tema ? tema.nombre : '' };
+    // Límite de cantidad por sesión (0 = todas)
+    const cartas = (opcCantidad > 0) ? baraja.slice(0, opcCantidad) : baraja;
+
+    sesionRepaso = { cards: cartas, indice: 0, temaId, temaNombre: tema ? tema.nombre : '' };
     mostrarPantalla('estudioFlashcards');
     mostrarTarjetaActual();
 }
