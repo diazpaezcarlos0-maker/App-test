@@ -141,7 +141,7 @@ function renderizarMazos() {
                 if (confirm('Este tema no tiene tarjetas todavía. ¿Quieres crear una?')) nuevaTarjeta(tema.id);
                 return;
             }
-            iniciarRepaso(tema.id);
+            abrirOpcionesTema(tema.id);
         };
         div.addEventListener('click', arrancar);
         div.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); arrancar(); } });
@@ -152,17 +152,104 @@ function renderizarMazos() {
 // ------------------------------------------------------------
 // SESIÓN DE REPASO
 // ------------------------------------------------------------
-function iniciarRepaso(temaId) {
-    const tema = temas.find(t => String(t.id) === String(temaId));
-    const pendientes = cardsDeTema(temaId).filter(estaPendiente);
+// ------------------------------------------------------------
+// OPCIONES DE ESTUDIO POR TEMA (estilo "Custom Study" de Anki)
+// ------------------------------------------------------------
+let opcTemaActual = null;
 
-    if (pendientes.length === 0) {
-        alert('¡No tienes tarjetas pendientes en este tema por ahora! Vuelve más tarde o añade nuevas.');
+function abrirOpcionesTema(temaId) {
+    opcTemaActual = temaId;
+    const tema = temas.find(t => String(t.id) === String(temaId));
+    mostrarPantalla('opcionesEstudio');
+
+    const titulo = document.getElementById('opcEstudioTitulo');
+    if (titulo) titulo.textContent = `🃏 ${tema ? tema.nombre : 'Repaso'}`;
+
+    const cards = cardsDeTema(temaId);
+    const nNuevas  = cards.filter(c => !c._prog.id).length;
+    const nOtraVez = cards.filter(c => c._prog.id && c._prog.repeticiones === 0 && estaPendiente(c)).length;
+    const nRepaso  = cards.filter(c => c._prog.id && c._prog.repeticiones >= 1 && estaPendiente(c)).length;
+    const nPend    = cards.filter(estaPendiente).length;
+    const nTotal   = cards.length;
+
+    const cont = document.getElementById('opcEstudioContenido');
+    if (!cont) return;
+    cont.innerHTML = '';
+
+    const counter = document.createElement('div');
+    counter.className = 'flashcard-contador opc-contador';
+    counter.innerHTML = `<span class="cnt-nuevas">${nNuevas}</span><span class="cnt-sep">+</span>` +
+                        `<span class="cnt-otravez">${nOtraVez}</span><span class="cnt-sep">+</span>` +
+                        `<span class="cnt-repaso">${nRepaso}</span>`;
+    cont.appendChild(counter);
+
+    cont.appendChild(botonEstudio('▶  Estudiar pendientes', nPend, 'pendientes', 'btn-primary btn-large'));
+
+    const grid = document.createElement('div');
+    grid.className = 'opc-filtros';
+    grid.appendChild(botonEstudio('🔵  Solo nuevas', nNuevas, 'nuevas', 'opc-filtro'));
+    grid.appendChild(botonEstudio('🟢  Solo repaso', nRepaso, 'repaso', 'opc-filtro'));
+    grid.appendChild(botonEstudio('🔴  Solo «otra vez»', nOtraVez, 'otravez', 'opc-filtro'));
+    grid.appendChild(botonEstudio('🔁  Repasar todas', nTotal, 'todas', 'opc-filtro'));
+    cont.appendChild(grid);
+
+    const nueva = document.createElement('button');
+    nueva.className = 'btn-secondary';
+    nueva.style.marginTop = '1.25rem';
+    nueva.textContent = '➕ Nueva tarjeta';
+    nueva.onclick = () => nuevaTarjeta(temaId);
+    cont.appendChild(nueva);
+}
+
+function botonEstudio(texto, count, filtro, clase) {
+    const b = document.createElement('button');
+    b.className = clase;
+    b.innerHTML = `<span>${texto}</span><span class="opc-num">${count}</span>`;
+    if (count === 0) {
+        b.disabled = true;
+        b.classList.add('opc-vacio');
+    } else {
+        b.onclick = () => iniciarRepaso(opcTemaActual, filtro);
+    }
+    return b;
+}
+
+// ------------------------------------------------------------
+// SESIÓN DE REPASO (con filtro)
+// filtro: 'pendientes' (nuevas+vencidas) | 'nuevas' | 'repaso' | 'otravez' | 'todas'
+// ------------------------------------------------------------
+function iniciarRepaso(temaId, filtro) {
+    filtro = filtro || 'pendientes';
+    const tema = temas.find(t => String(t.id) === String(temaId));
+    const cards = cardsDeTema(temaId);
+
+    let seleccion;
+    switch (filtro) {
+        case 'nuevas':
+            seleccion = cards.filter(c => !c._prog.id);
+            break;
+        case 'repaso':
+            seleccion = cards.filter(c => c._prog.id && c._prog.repeticiones >= 1 && estaPendiente(c));
+            break;
+        case 'otravez':
+            seleccion = cards.filter(c => c._prog.id && c._prog.repeticiones === 0 && estaPendiente(c));
+            break;
+        case 'todas':
+            seleccion = cards.slice(); // todas, incluso las que aún no tocan (modo "cram")
+            break;
+        case 'pendientes':
+        default:
+            seleccion = cards.filter(estaPendiente);
+            break;
+    }
+
+    if (seleccion.length === 0) {
+        alert('No hay tarjetas para esa opción.');
         return;
     }
 
     // Mezclar
-    const baraja = pendientes.slice();
+    const baraja = seleccion.slice();
     for (let i = baraja.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [baraja[i], baraja[j]] = [baraja[j], baraja[i]];
