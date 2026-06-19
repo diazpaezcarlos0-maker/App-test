@@ -26,22 +26,43 @@ function esAdmin() {
 // Contenido: tarjetas OFICIALES (de todos) + las PROPIAS.
 // Progreso (curva del olvido) INDIVIDUAL por usuario, en otra tabla.
 // ------------------------------------------------------------
+// Trae TODAS las filas en lotes de 1000 (Supabase devuelve máx. 1000 por consulta)
+async function fetchTodasLasFilas(construirQuery) {
+    const TAM = 1000;
+    let desde = 0;
+    let acumulado = [];
+    while (true) {
+        const { data, error } = await construirQuery().range(desde, desde + TAM - 1);
+        if (error) throw error;
+        const lote = data || [];
+        acumulado = acumulado.concat(lote);
+        if (lote.length < TAM) break; // último lote
+        desde += TAM;
+        if (desde > 100000) break;     // tope de seguridad
+    }
+    return acumulado;
+}
+
 async function cargarFlashcards() {
     if (!currentUser) { misFlashcards = []; return; }
     try {
-        // 1) Contenido visible: oficiales + propias
-        let q = sb.from('flashcards').select('*')
-            .or(`es_oficial.eq.true,user_id.eq.${currentUser.id}`);
-        if (window.convocatoriaActualId) {
-            q = q.eq('convocatoria_id', window.convocatoriaActualId);
-        }
-        const { data: contenido, error: e1 } = await q;
-        if (e1) throw e1;
+        // 1) Contenido visible: oficiales + propias (paginado)
+        const contenido = await fetchTodasLasFilas(() => {
+            let q = sb.from('flashcards').select('*')
+                .or(`es_oficial.eq.true,user_id.eq.${currentUser.id}`)
+                .order('id', { ascending: true });
+            if (window.convocatoriaActualId) {
+                q = q.eq('convocatoria_id', window.convocatoriaActualId);
+            }
+            return q;
+        });
 
-        // 2) Progreso individual
-        const { data: progreso, error: e2 } = await sb.from('flashcard_progress')
-            .select('*').eq('user_id', currentUser.id);
-        if (e2) throw e2;
+        // 2) Progreso individual (paginado)
+        const progreso = await fetchTodasLasFilas(() =>
+            sb.from('flashcard_progress').select('*')
+                .eq('user_id', currentUser.id)
+                .order('flashcard_id', { ascending: true })
+        );
 
         const mapaProg = {};
         (progreso || []).forEach(p => { mapaProg[p.flashcard_id] = p; });
