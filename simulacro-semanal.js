@@ -121,12 +121,11 @@ function generarPreguntasSimulacroSemanal() {
     // Recolectar todas las preguntas con su info de tema
     const todasPreguntas = [];
     temas.forEach(tema => {
-        tema.preguntas.forEach((p, idx) => {
+        tema.preguntas.forEach((p) => {
             todasPreguntas.push({
                 ...p,
                 temaId: tema.id,
-                temaNombre: tema.nombre,
-                idPregunta: `${tema.id}-${idx}`
+                temaNombre: tema.nombre
             });
         });
     });
