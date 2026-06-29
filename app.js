@@ -265,8 +265,8 @@ function cargarTemasSeleccionables() {
         const div = document.createElement('div');
         div.className = 'tema-checkbox';
         
-        const preguntasVistasDelTema = estadoApp.preguntasVistas.filter(id => 
-            id.startsWith(tema.id + '-')
+        const preguntasVistasDelTema = tema.preguntas.filter(p => 
+            estadoApp.preguntasVistas.includes(p.idPregunta)
         ).length;
         
         const icono = tema.icono || '📚'; // Icono por defecto si no tiene
@@ -336,8 +336,7 @@ function _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas)
         const tema = temas.find(t => t.id === temaId);
         if (tema) {
             tema.preguntas.forEach((p, index) => {
-                const idPregunta = `${temaId}-${index}`;
-                const yaVista = estadoApp.preguntasVistas.includes(idPregunta);
+                const yaVista = estadoApp.preguntasVistas.includes(p.idPregunta);
                 
                 if (soloPreguntasNuevas && yaVista) {
                     return;
@@ -346,8 +345,7 @@ function _arrancarModoEstudio(temasSeleccionados, cantidad, soloPreguntasNuevas)
                 preguntasDisponibles.push({
                     ...p,
                     temaId: tema.id,
-                    temaNombre: tema.nombre,
-                    idPregunta: idPregunta
+                    temaNombre: tema.nombre
                 });
             });
         }
@@ -388,7 +386,7 @@ function renderizarTemasEstudio() {
 
     temas.forEach(tema => {
         const total = tema.preguntas.length;
-        const vistas = estadoApp.preguntasVistas.filter(id => id.startsWith(tema.id + '-')).length;
+        const vistas = tema.preguntas.filter(p => estadoApp.preguntasVistas.includes(p.idPregunta)).length;
         const nuevas = Math.max(0, total - vistas);
         const completado = total > 0 ? Math.round((vistas / total) * 100) : 0;
         const icono = tema.icono || '📚';
@@ -419,11 +417,10 @@ function iniciarEstudioTema(temaId) {
     const tema = temas.find(t => t.id === temaId);
     if (!tema) { alert('Tema no encontrado.'); return; }
 
-    const todas = tema.preguntas.map((p, index) => ({
+    const todas = tema.preguntas.map(p => ({
         ...p,
         temaId: tema.id,
-        temaNombre: tema.nombre,
-        idPregunta: `${tema.id}-${index}`
+        temaNombre: tema.nombre
     }));
 
     // Preguntas nuevas (no vistas) primero; si no quedan, repasar todas
@@ -503,11 +500,10 @@ function obtenerPreguntasProporcionadas(cantidadTotal, temasFiltro) {
         const proporcion = tema.preguntas.length / totalPreguntas;
         const cantidadTema = Math.max(1, Math.round(cantidadTotal * proporcion));
         
-        const preguntasTema = tema.preguntas.map((p, index) => ({
+        const preguntasTema = tema.preguntas.map(p => ({
             ...p,
             temaId: tema.id,
-            temaNombre: tema.nombre,
-            idPregunta: `${tema.id}-${index}`
+            temaNombre: tema.nombre
         }));
         
         const mezcladas = mezclarArray(preguntasTema);
@@ -1307,8 +1303,8 @@ async function renderizarEstadisticasDetalladas() {
     
     temas.forEach(tema => {
         const stats = estadoApp.estadisticas[tema.id] || { respondidas: 0, correctas: 0 };
-        const preguntasVistasDelTema = estadoApp.preguntasVistas.filter(id => 
-            id.startsWith(tema.id + '-')
+        const preguntasVistasDelTema = tema.preguntas.filter(p => 
+            estadoApp.preguntasVistas.includes(p.idPregunta)
         ).length;
         
         const porcentaje = stats.respondidas > 0 
