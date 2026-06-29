@@ -76,7 +76,6 @@ async function cargarGuardadasDesdeSupabase() {
                     ...p,
                     temaId: tema.id,
                     temaNombre: tema.nombre,
-                    idPregunta: `${tema.id}-${indexEnTema}`
                 });
             }
         });
@@ -114,7 +113,6 @@ async function cargarFalladasDesdeSupabase() {
                     ...p,
                     temaId: tema.id,
                     temaNombre: tema.nombre,
-                    idPregunta: `${tema.id}-${indexEnTema}`
                 });
             }
         });
@@ -159,7 +157,7 @@ async function cargarEstadisticasDesdeSupabase() {
 }
 
 /**
- * Devuelve los IDs de preguntas vistas (cualquier respuesta dada) en formato legacy "temaId-indexEnTema".
+ * Devuelve los IDs de preguntas vistas (cualquier respuesta dada) en formato estable "q-${dbId}".
  */
 async function cargarVistasDesdeSupabase() {
     const convId = window.convocatoriaActualId;
@@ -176,18 +174,12 @@ async function cargarVistasDesdeSupabase() {
         return [];
     }
     
-    const idsVistas = new Set(data.map(r => r.question_id));
-    const vistas = [];
-    
-    // Mapear dbId -> "temaId-indexEnTema" (formato que espera el código antiguo)
-    temas.forEach(tema => {
-        tema.preguntas.forEach((p, indexEnTema) => {
-            if (p.dbId && idsVistas.has(p.dbId)) {
-                vistas.push(`${tema.id}-${indexEnTema}`);
-            }
-        });
-    });
-    
+    // El id estable de cada pregunta es `q-${dbId}` (igual que en data-loader),
+    // así no depende del orden ni del índice dentro del tema.
+    const vistas = data
+        .filter(r => r.question_id != null)
+        .map(r => `q-${r.question_id}`);
+
     return vistas;
 }
 
